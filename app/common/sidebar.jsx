@@ -122,19 +122,8 @@ export default function Sidebar({ isMobileOpen, isCollapsed, onToggle, onClose }
 
   const adminMenu = [
     ...baseMenu,
-    { label: "User Management", path: "/usersonboarding", icon: <FaCog /> },
-    { label: "Permission", path: "/permissions", icon: <FaUserShield /> },
-    { label: "Add Bank", path: "/addbank", icon: <FaUniversity /> },
-    { label: "Add Commission", path: "/add-commission", icon: <FaPlusCircle /> },
-    { label: "Commission", path: "/commission", icon: <FaChartBar /> },
-    { label: "Assign Scheme", path: "/assignscheme", icon: <FaUserPlus /> },
-    { label: "Fund Requests", path: "/fundrequests", icon: <FaHandHoldingUsd /> },
-    { label: "Service Management", path: "/adminpannel", icon: <FaCogs /> },
-    { label: "Sign Up Request", path: "/signuprequest", icon: <FaUsers /> },
-    { label: "Refunds", path: "/refunds", icon: <FaUndoAlt /> },
-    { label: "Reports", path: "/reports", icon: <FaRegFileAlt /> },
-    { label: "Admin Helpdesk", path: "/adminhelpdesk", icon: <FaHeadset /> },
-    { label: "Check Status", path: "/status", icon: <FaChartLine /> },
+   
+    { label: "Catogeory", path: "/catogeory", icon: <FaChartLine /> },
   ];
 
   const masterMenu = [
@@ -170,11 +159,11 @@ export default function Sidebar({ isMobileOpen, isCollapsed, onToggle, onClose }
   const retailerMenu = [
     ...baseMenu,
     ...services,
-    { label: "pages", path: "/commission", icon: <FaChartBar /> },
-    { label: "Add Bank", path: "/addbank", icon: <FaUniversity /> },
-    { label: "Reports", path: "/reports", icon: <FaRegFileAlt /> },
-    { label: "Check Status", path: "/status", icon: <FaChartLine /> },
-    { label: "Refunds", path: "/refunds", icon: <FaUndoAlt /> },
+    // { label: "commission", path: "/commission", icon: <FaChartBar /> },
+    // { label: "Add Bank", path: "/addbank", icon: <FaUniversity /> },
+    // { label: "Reports", path: "/reports", icon: <FaRegFileAlt /> },
+    // { label: "Check Status", path: "/status", icon: <FaChartLine /> },
+    // { label: "Refunds", path: "/refunds", icon: <FaUndoAlt /> },
     { label: "loan", path: "/loan", icon: <FaHeadset /> },
   ];
 
@@ -215,7 +204,7 @@ export default function Sidebar({ isMobileOpen, isCollapsed, onToggle, onClose }
 
 
         <div className="flex-shrink-0 flex items-center justify-between border-b border-[#1e3a8a] md:hidden">
-          <Image src="/image/logo.png" alt="Logo" width={40} height={40} />
+          <Image src="/image/lms.jpg" alt="Logo" width={40} height={40} />
           <button onClick={onClose} className="text-white hover:text-blue-300">
             <FaTimes size={20} />
           </button>
@@ -236,7 +225,7 @@ export default function Sidebar({ isMobileOpen, isCollapsed, onToggle, onClose }
     `}
           >
             <Image
-              src={isCollapsed ? "/DhanBuddy.png" : "/logo2.png"}
+              src={isCollapsed ? "/lms.jpg" : "/lms.jpg"}
               alt="Logo"
               fill
               className={`object-contain ${isCollapsed ? "rounded-full p-1" : ""

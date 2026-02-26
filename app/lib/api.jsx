@@ -1,8 +1,8 @@
 import axios from "axios";
 
-export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://wikinapi.gssmart.in/apis/";
-export const BASE_URL1 = process.env.NEXT_PUBLIC_API_BASE_URL || "https://wikinapi.gssmart.in/api/";
-export const FILES_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://wikinapi.gssmart.in/";
+export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://192.168.29.196:8000/apis/";
+export const BASE_URL1 = process.env.NEXT_PUBLIC_API_BASE_URL || "http://192.168.29.196:8000/api/";
+export const FILES_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://192.168.29.196:8000/";
 
 
 function extractErrorMessage(error) {
