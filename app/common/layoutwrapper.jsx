@@ -15,7 +15,7 @@ export default function Provider({ children }) {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
   const [showSuperAdminPopup, setShowSuperAdminPopup] = useState(false);
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [userRole, setUserRole] = useState(null);
 
 
