@@ -122,7 +122,8 @@ export default function Sidebar({ isMobileOpen, isCollapsed, onToggle, onClose }
 
   const adminMenu = [
     ...baseMenu,
-   
+       { label: "Loan", path: "/loan", icon: <FaChartLine /> },
+
     { label: "Catogeory", path: "/catogeory", icon: <FaChartLine /> },
   ];
 
