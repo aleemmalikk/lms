@@ -160,10 +160,10 @@ export default function Provider({ children }) {
     serviceBarRoutes.some(route => pathname.startsWith(route));
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white">
       {showSuperAdminPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-auto shadow-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl w-full max-w-md mx-auto shadow-2xl">
             <div className="text-center">
               <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
                 <span className="text-2xl">👑</span>
