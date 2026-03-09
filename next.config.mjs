@@ -3,6 +3,7 @@ const nextConfig = {
   reactCompiler: true,
 
   images: {
+    domains: ["api.townzfin.com"],
     remotePatterns: [
       {
         protocol: "https",

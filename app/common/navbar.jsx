@@ -284,7 +284,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
             </span>
           </button> */}
 
-          {canViewAEPS(userProfile?.role) && (
+          {/* {canViewAEPS(userProfile?.role) && (
             <div className="flex items-center gap-1 bg-gradient-to-r from-blue-600 to-blue-800 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow-lg">
               <FaWallet className="w-4 h-4 text-yellow-300" />
               <span>
@@ -293,7 +293,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
                 })}
               </span>
             </div>
-          )}
+          )} */}
 
 
           {/* 🤝 Refer to Friend */}
