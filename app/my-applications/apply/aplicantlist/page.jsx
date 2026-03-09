@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getWithAuth } from "../../../lib/api";
+import Link from "next/link";
 
 export default function LoanDashboard() {
     const [stats, setStats] = useState(null);
@@ -68,7 +69,12 @@ export default function LoanDashboard() {
                         {stats.applications.map((app) => (
                             <tr key={app.id} className="border-b">
                                 <td className="px-4 py-3 font-semibold">
-                                    {app.full_name || "N/A"}
+                                    <Link
+                                        href={`/my-applications/${app.id}`}
+                                        className="text-blue-600 hover:underline"
+                                    >
+                                        {app.full_name || "N/A"}
+                                    </Link>
                                 </td>
                                 <td className="px-4 py-3">
                                     {app.email || "N/A"}

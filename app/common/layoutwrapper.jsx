@@ -249,8 +249,8 @@ export default function Provider({ children }) {
 
             {/* PAGE CONTENT */}
             <main
-              className={`p-2 md:p-6 transition-all duration-300 ${shouldShowServiceBar ? "mt-[120px]" : "mt-[40px]"
-                }`}
+              className={`p-0 md:p-6 transition-all duration-300 
+  ${shouldShowServiceBar ? "mt-[80px]" : "mt-[0px]"}`}
             >
 
               {children}

@@ -2,22 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Theme Variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-/* Apply Theme */
-body {
-  background-color: var(--background);
-  color: var(--foreground);
+html, body {
+  background: #ffffff;
+  color: #171717;
+  min-height: 100%;
 }

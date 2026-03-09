@@ -166,53 +166,49 @@ export default function Sidebar({
 
     {
       label: "My Applications",
-      path: "/my-applications",
+      path: "/my-applications/apply",
       icon: <FaFileAlt size={18} />,
     },
-
     {
       label: "My Loans",
-      path: "/lons/apply",
+      path: "/loans",
       icon: <FaMoneyBillWave size={18} />,
     },
-
     {
       label: "Profile",
       path: "/profile",
       icon: <FaUserCircle size={18} />,
     },
-
     {
       label: "Credit Reports",
-      path: "/reports",
+      path: "/credit-report",
       icon: <FaChartBar size={18} />,
     },
 
     {
       label: "Consent Preference",
-      path: "/status",
+      path: "/under-construction?type=consent",
       icon: <FaChartLine size={18} />,
     },
 
     {
       label: "About LMS",
-      path: "/about",
+      path: "/under-construction?type=about",
       icon: <FaInfoCircle size={18} />,
     },
 
     {
       label: "Contact Us",
-      path: "/contact",
+      path: "/under-construction?type=contact",
       icon: <FaPhoneAlt size={18} />,
     },
 
     {
       label: "Policy Terms",
-      path: "/policy",
+      path: "/under-construction?type=policy",
       icon: <FaFileContract size={18} />,
     },
   ];
-
 
   const getMenuForRole = () => {
     switch (userRole?.toLowerCase()) {
@@ -257,7 +253,7 @@ export default function Sidebar({
               }`}
           >
             <Image
-              src={isCollapsed ? "/DhanBuddy.png" : "/logo2.png"}
+              src={isCollapsed ? "/favicon.ico" : "/favicon.ico"}
               alt="logo"
               fill
               className="object-contain"
@@ -270,9 +266,8 @@ export default function Sidebar({
         <nav className="p-2 space-y-1 overflow-y-auto h-[calc(100vh-80px)]">
           {roleBasedMenu.map((item, i) => {
             const active =
-              pathname === item.path ||
-              (item.path.includes("category") &&
-                item.path.includes(currentCategory));
+              item.path === `${pathname}?${searchParams.toString()}` ||
+              pathname === item.path;
 
             return (
               <Link
