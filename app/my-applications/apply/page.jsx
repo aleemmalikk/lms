@@ -212,10 +212,11 @@ export default function LoanApplyPage() {
       >
 
         <div className="flex justify-end">
-          <Link href="/lons/apply/aplicantlist">
-            <button className="bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800 transition font-medium">
-              View Applicant List
-            </button>
+          <Link
+            href="/my-applications/apply/aplicantlist"
+            className="text-blue-600 hover:text-blue-800 underline-offset-4 hover:underline font-semibold"
+          >
+            View rejected applications →
           </Link>
         </div>
         {/* Header */}

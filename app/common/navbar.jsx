@@ -206,12 +206,12 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
 
   return (
     <div className="
-  bg-gradient-to-r 
-  from-[#34d399] 
-  via-[#60a5fa] 
-  to-[#3b82f6]
+  bg-gradient-to-r
+  from-[#0f172a]
+  via-[#1e3a8a]
+  to-[#2563eb]
   backdrop-blur-md
-  shadow-md
+  shadow-lg
 ">
 
       <div className="flex justify-between items-center px-2 sm:px-1  py-1 h-[60px]">
@@ -240,7 +240,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
       before:border-l-white/15
     "
           >
-           
+
             <button
               onClick={onMenuToggle}
               className="flex items-center justify-center

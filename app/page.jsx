@@ -23,7 +23,6 @@ import {
   Percent,
 } from "lucide-react";
 
-/* -------------------- DATA -------------------- */
 
 const repaymentData = [
   { name: "On Time", value: 369 },
@@ -62,13 +61,11 @@ const scatterData = Array.from({ length: 80 }).map(() => ({
 
 const COLORS = ["#1E40AF", "#A78BFA", "#86EFAC"];
 
-/* -------------------- COMPONENT -------------------- */
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen p-6">
       
-      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-orange-500">
           NBFC Lending Analytics - Customer Analytics
@@ -84,7 +81,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* STAT CARDS */}
       <div className="grid grid-cols-5 gap-4 mb-6">
         <StatCard icon={<Users />} title="Number of Customers" value="500" />
         <StatCard icon={<IndianRupee />} title="Total Loan Amount" value="633.39M" />
@@ -93,10 +89,8 @@ export default function Dashboard() {
         <StatCard icon={<Percent />} title="Average Interest Rate" value="13.04" />
       </div>
 
-      {/* ROW 1 */}
       <div className="grid grid-cols-3 gap-4 mb-6">
 
-        {/* Donut */}
         <Card title="Number of Customers by Repayment Status">
           <PieChart width={300} height={250}>
             <Pie
@@ -113,7 +107,6 @@ export default function Dashboard() {
           </PieChart>
         </Card>
 
-        {/* Region Bar */}
         <Card title="Total Loan Amount by Region">
           <BarChart width={350} height={250} data={regionData}>
             <XAxis dataKey="region" />
@@ -123,7 +116,6 @@ export default function Dashboard() {
           </BarChart>
         </Card>
 
-        {/* Branch Bar */}
         <Card title="Customers by Branch & Repayment">
           <BarChart width={350} height={250} data={branchData}>
             <XAxis dataKey="branch" />
@@ -137,10 +129,8 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* ROW 2 */}
       <div className="grid grid-cols-2 gap-4">
 
-        {/* Treemap */}
         <Card title="Top 10 Loans by Customer and Tenure">
           <Treemap
             width={500}
@@ -154,7 +144,6 @@ export default function Dashboard() {
           </Treemap>
         </Card>
 
-        {/* Scatter */}
         <Card title="Feedback Score vs Loan Amount">
           <ScatterChart width={500} height={250}>
             <CartesianGrid />
@@ -170,7 +159,6 @@ export default function Dashboard() {
   );
 }
 
-/* -------------------- SMALL REUSABLE COMPONENTS -------------------- */
 
 function StatCard({ icon, title, value }) {
   return (
