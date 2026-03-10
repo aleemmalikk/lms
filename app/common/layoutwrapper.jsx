@@ -249,9 +249,9 @@ export default function Provider({ children }) {
             </div>
 
             <main
-              className={`p-0 md:p-6 transition-all duration-300 
-              ${shouldShowServiceBar ? "mt-[80px]" : "mt-[0px]"}`}
-            >
+  className={`p-0 md:p-6 transition-all duration-300 
+  ${shouldShowServiceBar ? "mt-[80px]" : "mt-[44px]"}`}
+>
               {children}
             </main>
           </div>

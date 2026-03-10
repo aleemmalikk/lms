@@ -140,6 +140,7 @@ export default function Sidebar({
     // { label: "Reports", path: "/reports", icon: <FaRegFileAlt /> },
     // { label: "Admin Helpdesk", path: "/adminhelpdesk", icon: <FaHeadset /> },
     // { label: "Check Status", path: "/status", icon: <FaChartLine /> },
+    { label: "Loan Products", path: "/loanproducts", icon: <FaInfoCircle /> },
   ];
 
 
