@@ -184,7 +184,7 @@ const handleBack = () => {
         {/* LEFT SIDE IMAGE FULL COVER */}
         <div className="md:w-1/2 w-full h-[300px] md:h-auto relative">
           <img
-            src="/image/15.png"
+            src="/image/lms.jpg"
             alt="Forgot Password Illustration"
             className="absolute inset-0 w-full h-full object-cover"
           />

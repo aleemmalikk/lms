@@ -25,6 +25,7 @@ import {
   FaInfoCircle,
   FaPhoneAlt,
   FaFileContract,
+  FaList,
   FaMoneyBillWave
 } from "react-icons/fa";
 
@@ -126,19 +127,20 @@ export default function Sidebar({
 
   const adminMenu = [
     ...baseMenu,
-    { label: "User Management", path: "/usersonboarding", icon: <FaUsers /> },
-    { label: "Permission", path: "/permissions", icon: <FaUserShield /> },
-    { label: "Add Bank", path: "/addbank", icon: <FaUniversity /> },
-    { label: "Add Commission", path: "/add-commission", icon: <FaPlusCircle /> },
-    { label: "Commission", path: "/commission", icon: <FaChartBar /> },
-    { label: "Assign Scheme", path: "/assignscheme", icon: <FaUserPlus /> },
-    { label: "Fund Requests", path: "/fundrequests", icon: <FaHandHoldingUsd /> },
-    { label: "Service Management", path: "/adminpannel", icon: <FaCogs /> },
-    { label: "Sign Up Request", path: "/signuprequest", icon: <FaUsers /> },
-    { label: "Refunds", path: "/refunds", icon: <FaUndoAlt /> },
-    { label: "Reports", path: "/reports", icon: <FaRegFileAlt /> },
-    { label: "Admin Helpdesk", path: "/adminhelpdesk", icon: <FaHeadset /> },
-    { label: "Check Status", path: "/status", icon: <FaChartLine /> },
+     { label: "View List", path: "/lons/apply/aplicantlist", icon: <FaList /> },
+    { label: "Category", path: "/loan/category", icon: <FaUserShield /> },
+    // { label: "Add Bank", path: "/addbank", icon: <FaUniversity /> },
+    // { label: "Add Commission", path: "/add-commission", icon: <FaPlusCircle /> },
+    // { label: "Commission", path: "/commission", icon: <FaChartBar /> },
+    // { label: "Assign Scheme", path: "/assignscheme", icon: <FaUserPlus /> },
+    // { label: "Fund Requests", path: "/fundrequests", icon: <FaHandHoldingUsd /> },
+    // { label: "Service Management", path: "/adminpannel", icon: <FaCogs /> },
+    // { label: "Sign Up Request", path: "/signuprequest", icon: <FaUsers /> },
+    // { label: "Refunds", path: "/refunds", icon: <FaUndoAlt /> },
+    // { label: "Reports", path: "/reports", icon: <FaRegFileAlt /> },
+    // { label: "Admin Helpdesk", path: "/adminhelpdesk", icon: <FaHeadset /> },
+    // { label: "Check Status", path: "/status", icon: <FaChartLine /> },
+    { label: "Loan Products", path: "/loanproducts", icon: <FaInfoCircle /> },
   ];
 
 
@@ -253,7 +255,7 @@ export default function Sidebar({
               }`}
           >
             <Image
-              src={isCollapsed ? "/favicon.ico" : "/favicon.ico"}
+              src={isCollapsed ? "/lms.jpg" : "/lms.jpg"}
               alt="logo"
               fill
               className="object-contain"

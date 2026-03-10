@@ -139,7 +139,7 @@ export default function SignupForm() {
         <div className="md:w-2/4 w-full relative hidden md:block">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-700/20 z-10"></div>
           <img
-            src="/image/15.png"
+            src="/image/lms.jpg"
             alt="Signup Illustration"
             className="w-full h-full object-cover transform scale-110"
           />

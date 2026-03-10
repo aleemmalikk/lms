@@ -6,8 +6,6 @@ import SidebarWrapper from "./sidebar-wrapper";
 import { isAuthenticated, getUserRole } from "../lib/api";
 import ServicesBar from "./services-bar";
 
-
-
 export default function Provider({ children }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -18,7 +16,8 @@ export default function Provider({ children }) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [userRole, setUserRole] = useState(null);
 
-
+  /* 🔥 NEW STATE */
+  const [authenticated, setAuthenticated] = useState(false);
 
   const publicRoutes = [
     "/login",
@@ -69,35 +68,36 @@ export default function Provider({ children }) {
 
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      const authenticated = isAuthenticated();
+      const auth = isAuthenticated();
       const role = getUserRole();
-      setUserRole(role?.toLowerCase());
 
+      setAuthenticated(auth); // 🔥 new line
+      setUserRole(role?.toLowerCase());
 
       console.log('🛡️ Auth Check Result:', {
         pathname,
-        authenticated,
-        userRole,
+        authenticated: auth,
+        userRole: role,
         isPublicRoute: publicRoutes.includes(pathname)
       });
 
-      if (!authenticated && !publicRoutes.includes(pathname)) {
-        console.log('🔐 Redirecting to login: Not authenticated');
+      if (!auth && !publicRoutes.includes(pathname)) {
+        console.log('Auth disabled → allowing direct access');
         setAuthChecked(true);
-        router.replace("/login");
+        setIsCheckingAuth(false);
         return;
       }
 
-      if (authenticated && publicRoutes.includes(pathname)) {
+      if (auth && publicRoutes.includes(pathname)) {
         console.log('🏠 Redirecting to dashboard: Already authenticated');
 
-        if (userRole?.toLowerCase() === 'superadmin') {
+        if (role?.toLowerCase() === 'superadmin') {
           console.log('👑 Superadmin detected, showing popup');
           setShowSuperAdminPopup(true);
           return;
         }
 
-        const targetRoute = roleBasedRoutes[userRole?.toLowerCase()] || "/";
+        const targetRoute = roleBasedRoutes[role?.toLowerCase()] || "/";
         setAuthChecked(true);
         router.replace(targetRoute);
         return;
@@ -141,7 +141,6 @@ export default function Provider({ children }) {
     }
   };
 
-
   const closeMobileSidebar = () => {
     setIsMobileSidebarOpen(false);
   };
@@ -154,13 +153,13 @@ export default function Provider({ children }) {
     "/services",
   ];
 
-
   const shouldShowServiceBar =
     userRole === "retailer" &&
     serviceBarRoutes.some(route => pathname.startsWith(route));
 
   return (
     <div className="bg-white">
+
       {showSuperAdminPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl w-full max-w-md mx-auto shadow-2xl">
@@ -204,36 +203,40 @@ export default function Provider({ children }) {
 
       {!hideLayout ? (
         <div className="flex">
-          {/* SIDEBAR */}
-          <div
-            className={`
-    fixed inset-y-0 left-0 z-30
-    transition-all duration-300
-    ${isMobileSidebarOpen ? "block" : "hidden"}
-    md:block
-    ${isSidebarExpanded ? "md:w-64" : "md:w-16"}
-  `}
-          >
-            <SidebarWrapper
-              isMobileOpen={isMobileSidebarOpen}
-              isCollapsed={!isSidebarExpanded}
-              onToggle={() => setIsSidebarExpanded(prev => !prev)}
-              onClose={closeMobileSidebar}
-            />
-          </div>
 
-          {/* MAIN AREA */}
+          {/* 🔥 SIDEBAR ONLY IF LOGIN */}
+          {authenticated && (
+            <div
+              className={`
+              fixed inset-y-0 left-0 z-30
+              transition-all duration-300
+              ${isMobileSidebarOpen ? "block" : "hidden"}
+              md:block
+              ${isSidebarExpanded ? "md:w-64" : "md:w-16"}
+            `}
+            >
+              <SidebarWrapper
+                isMobileOpen={isMobileSidebarOpen}
+                isCollapsed={!isSidebarExpanded}
+                onToggle={() => setIsSidebarExpanded(prev => !prev)}
+                onClose={closeMobileSidebar}
+              />
+            </div>
+          )}
+
           <div
             className={`flex-1 transition-all duration-300
-    ${isSidebarExpanded ? "md:ml-64" : "md:ml-16"}
-  `}
+            ${authenticated ? (isSidebarExpanded ? "md:ml-64" : "md:ml-16") : "ml-0"}
+          `}
           >
-            {/* NAVBAR + SERVICE BAR */}
+
             <div
               className={`fixed top-0 right-0 z-40 transition-all duration-300
-      ${isSidebarExpanded ? "md:left-64" : "md:left-16"}
-    `}
+              ${authenticated ? (isSidebarExpanded ? "md:left-64" : "md:left-16") : "left-0"}
+            `}
             >
+
+              {/* 🔥 NAVBAR FULL WIDTH IF NOT LOGIN */}
               <Navbar
                 onMenuToggle={toggleSidebar}
                 isSidebarOpen={isSidebarExpanded}
@@ -243,22 +246,17 @@ export default function Provider({ children }) {
                 serviceBarRoutes.some(route => pathname.startsWith(route)) && (
                   <ServicesBar isSidebarExpanded={isSidebarExpanded} />
                 )}
-
-
             </div>
 
-            {/* PAGE CONTENT */}
             <main
-              className={`p-0 md:p-6 transition-all duration-300 
-  ${shouldShowServiceBar ? "mt-[80px]" : "mt-[0px]"}`}
-            >
-
+  className={`p-0 md:p-6 transition-all duration-300 
+  ${shouldShowServiceBar ? "mt-[80px]" : "mt-[44px]"}`}
+>
               {children}
             </main>
           </div>
 
-
-          {isMobileSidebarOpen && (
+          {isMobileSidebarOpen && authenticated && (
             <div
               className="fixed inset-0 bg-transparent z-20 md:hidden"
               onClick={closeMobileSidebar}
