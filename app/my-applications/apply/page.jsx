@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  getWithAuth,
+  BASE_URL,
   postWithAuth,
 } from "../../lib/api";
 import { motion, AnimatePresence } from "framer-motion";
@@ -83,15 +83,16 @@ export default function LoanApplyPage() {
   }, [customerDetails, formData]);
 
   const fetchCategories = async () => {
-    try {
-      const data = await getWithAuth("loan-categories/");
-      setCategories(data);
-    } catch (error) {
-      console.error(error);
-      setMessageType("error");
-      setMessage("Failed to load loan categories");
-    }
-  };
+  try {
+    const res = await fetch(`${BASE_URL}loan-categories/`);
+    const data = await res.json();
+    setCategories(data);
+  } catch (error) {
+    console.error(error);
+    setMessageType("error");
+    setMessage("Failed to load loan categories");
+  }
+};
 
   const handleCustomerChange = (e) => {
     const { name, value } = e.target;
