@@ -11,22 +11,44 @@ import {
   FaUser,
   FaKey,
   FaLock,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaHome,
+  FaShoppingCart,
+  FaInfoCircle,
+  FaEnvelope,
+  FaPhone,
+  FaUserPlus,
+  FaSignInAlt
 } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
 import { BASE_URL } from "@/app/lib/api";
+import Link from "next/link";
 
 export default function Navbar({ onMenuToggle, isSidebarOpen }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const dropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);
   const router = useRouter();
   const [aepsBalance, setAepsBalance] = useState("0.00");
 
+  // Check login status on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    setIsLoggedIn(!!token);
+    
+    if (token) {
+      fetchUserProfile();
+      fetchWalletBalance();
+    }
+    setLoading(false);
+  }, []);
 
   // 🪙 Fetch Wallet Balance Function
   const fetchWalletBalance = async () => {
@@ -58,7 +80,6 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
     }
   };
 
-
   const fetchAEPSBalance = async () => {
     try {
       const token = localStorage.getItem("access_token");
@@ -87,13 +108,52 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
     }
   };
 
+  // 👤 Fetch User Profile Data
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+
+      if (!token) {
+        console.warn("No access token found");
+        return;
+      }
+
+      const response = await axios.get(`${BASE_URL}users/my_profile/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("User Profile API Response:", response.data);
+      setUserProfile(response.data);
+
+      // Store user data in localStorage for quick access
+      localStorage.setItem('user_profile', JSON.stringify(response.data));
+
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+      // Try to get from localStorage as fallback
+      const cachedProfile = localStorage.getItem('user_profile');
+      if (cachedProfile) {
+        setUserProfile(JSON.parse(cachedProfile));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     // first time navbar load
-    fetchWalletBalance();
+    if (isLoggedIn) {
+      fetchWalletBalance();
+    }
 
     const handleWalletRefresh = () => {
       console.log("🔔 Wallet refresh event received");
-      fetchWalletBalance();
+      if (isLoggedIn) {
+        fetchWalletBalance();
+      }
     };
 
     window.addEventListener("wallet:refresh", handleWalletRefresh);
@@ -101,23 +161,22 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
     return () => {
       window.removeEventListener("wallet:refresh", handleWalletRefresh);
     };
-  }, []);
-
+  }, [isLoggedIn]);
 
   useEffect(() => {
-    if (canViewAEPS(userProfile?.role)) {
+    if (isLoggedIn && canViewAEPS(userProfile?.role)) {
       fetchAEPSBalance();
     }
-  }, [userProfile]);
-
-
+  }, [userProfile, isLoggedIn]);
 
   // ✅ Global function for payment pages
   useEffect(() => {
     window.refreshNavbarWallet = () => {
-      fetchWalletBalance();
+      if (isLoggedIn) {
+        fetchWalletBalance();
+      }
     };
-  }, []);
+  }, [isLoggedIn]);
 
   // 🔒 Close dropdown when clicked outside
   useEffect(() => {
@@ -125,52 +184,18 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsProfileOpen(false);
       }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setIsMobileMenuOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 👤 Fetch User Profile Data
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem("access_token");
-
-        if (!token) {
-          console.warn("No access token found");
-          return;
-        }
-
-        const response = await axios.get(`${BASE_URL}users/my_profile/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        console.log("User Profile API Response:", response.data);
-        setUserProfile(response.data);
-
-        // Store user data in localStorage for quick access
-        localStorage.setItem('user_profile', JSON.stringify(response.data));
-
-      } catch (error) {
-        console.error("Failed to fetch user profile:", error);
-        // Try to get from localStorage as fallback
-        const cachedProfile = localStorage.getItem('user_profile');
-        if (cachedProfile) {
-          setUserProfile(JSON.parse(cachedProfile));
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
-
   const handleLogout = () => {
     localStorage.clear();
+    setIsLoggedIn(false);
+    setUserProfile(null);
     window.location.href = "/login";
   };
 
@@ -198,56 +223,160 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
     userProfile.phone_number
   );
 
-
   const canViewAEPS = (role) => {
     return role === "admin";
   };
 
+  // Public navigation items for non-logged in users
+  const publicNavItems = [
+    { name: "Home", href: "/", icon: FaHome },
+    { name: "Products", href: "/products", icon: FaShoppingCart },
+    { name: "About Us", href: "/about", icon: FaInfoCircle },
+    { name: "Contact", href: "/contact", icon: FaEnvelope },
+  ];
 
+  // Render based on login status
+  if (!isLoggedIn) {
+    // Full width navbar for non-logged in users
+    return (
+      <nav className="bg-gradient-to-r from-[#0f172a] via-[#1e3a8a] to-[#2563eb] shadow-lg w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              <Link href="/" className="text-white text-xl font-bold">
+                Your Logo
+              </Link>
+            </div>
+
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-8">
+              {publicNavItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-white hover:text-[#6DDC01] transition-colors duration-200 font-medium"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+
+            {/* Auth Buttons */}
+            <div className="hidden md:flex items-center space-x-4">
+              <Link
+                href="/login"
+                className="flex items-center gap-2 text-white hover:text-[#6DDC01] transition-colors duration-200 px-4 py-2 rounded-lg"
+              >
+                <FaSignInAlt />
+                <span>Login</span>
+              </Link>
+              <Link
+                href="/login/signuprequest"
+                className="flex items-center gap-2 bg-[#6DDC01] text-black px-4 py-2 rounded-lg hover:bg-[#5bc001] transition-colors duration-200 font-medium"
+              >
+                <FaUserPlus />
+                <span>Sign Up</span>
+              </Link>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-white hover:text-[#6DDC01] focus:outline-none"
+              >
+                {isMobileMenuOpen ? (
+                  <FaTimes className="h-6 w-6" />
+                ) : (
+                  <FaBars className="h-6 w-6" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden" ref={mobileMenuRef}>
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-[#0f172a] border-t border-[#1e3a8a]">
+              {publicNavItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="block px-3 py-2 text-white hover:text-[#6DDC01] hover:bg-[#1e3a8a] rounded-md transition-colors duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="flex items-center gap-2">
+                    <item.icon className="text-[#6DDC01]" />
+                    <span>{item.name}</span>
+                  </div>
+                </Link>
+              ))}
+              <div className="border-t border-[#1e3a8a] my-2"></div>
+              <Link
+                href="/login"
+                className="block px-3 py-2 text-white hover:text-[#6DDC01] hover:bg-[#1e3a8a] rounded-md transition-colors duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <div className="flex items-center gap-2">
+                  <FaSignInAlt className="text-[#6DDC01]" />
+                  <span>Login</span>
+                </div>
+              </Link>
+              <Link
+                href="/signup"
+                className="block px-3 py-2 bg-[#6DDC01] text-black hover:bg-[#5bc001] rounded-md transition-colors duration-200 font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <div className="flex items-center gap-2">
+                  <FaUserPlus />
+                  <span>Sign Up</span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        )}
+      </nav>
+    );
+  }
+
+  // Render logged-in navbar (existing functionality with full width)
   return (
-    <div className="
-  bg-gradient-to-r
-  from-[#0f172a]
-  via-[#1e3a8a]
-  to-[#2563eb]
-  backdrop-blur-md
-  shadow-lg
-">
-
-      <div className="flex justify-between items-center px-2 sm:px-1  py-1 h-[60px]">
+    <div className="bg-gradient-to-r from-[#0f172a] via-[#1e3a8a] to-[#2563eb] backdrop-blur-md shadow-lg w-full">
+      <div className="flex justify-between items-center px-2 sm:px-1 py-1 h-[60px]">
         {/* Left Section - Hamburger Menu */}
         <div className="relative hidden md:flex items-center">
           {/* ARROW CARD */}
           <div
             className="
-      relative flex items-center gap-4
-      px-4 py-1
-      bg-white/15 backdrop-blur-md
-      text-white
-      rounded-l-xl
-      shadow-lg
-      before:content-['']
-      before:absolute
-      before:right-[-26px]
-      before:top-0
-      before:w-0
-      before:h-0
-      before:border-t-[24px]
-      before:border-b-[24px]
-      before:border-l-[26px]
-      before:border-t-transparent
-      before:border-b-transparent
-      before:border-l-white/15
-    "
+              relative flex items-center gap-4
+              px-4 py-1
+              bg-white/15 backdrop-blur-md
+              text-white
+              rounded-l-xl
+              shadow-lg
+              before:content-['']
+              before:absolute
+              before:right-[-26px]
+              before:top-0
+              before:w-0
+              before:h-0
+              before:border-t-[24px]
+              before:border-b-[24px]
+              before:border-l-[26px]
+              before:border-t-transparent
+              before:border-b-transparent
+              before:border-l-white/15
+            "
           >
-
             <button
               onClick={onMenuToggle}
               className="flex items-center justify-center
-        w-10 h-10 rounded-lg
-        bg-white/10
-        hover:bg-white/20
-        transition"
+                w-10 h-10 rounded-lg
+                bg-white/10
+                hover:bg-white/20
+                transition"
               title="Toggle Sidebar"
             >
               ☰
@@ -256,11 +385,9 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
             {/* WELCOME TEXT */}
             <p className="text-lg font-semibold flex items-center gap-2 whitespace-nowrap">
               <span className="opacity-80">Welcome</span>
-
               <span className="text-blue-500 font-bold">
                 {getDisplayName()}
               </span>
-
               {userProfile?.role_uid && (
                 <span className="px-2 py-0.5 text-sm font-semibold bg-black/20 rounded-md">
                   ID : {userProfile.role_uid.toUpperCase()}
@@ -270,42 +397,9 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
           </div>
         </div>
 
-
         {/* Right Section */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* 💰 Wallet Button */}
-          {/* <button
-            onClick={() => router.push("/wallet")}
-            className="flex items-center gap-1.5 cursor-pointer bg-gradient-to-r from-[#033483] to-[#6DDC01] text-white px-2.5 sm:px-3 py-1.5 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105 text-xs sm:text-sm shadow-md"
-          >
-            <FaWallet className="text-base" />
-            <span className="font-semibold">
-              ₹{walletBalance !== null ? walletBalance.toFixed(2) : "0.00"}
-            </span>
-          </button> */}
-
-          {canViewAEPS(userProfile?.role) && (
-            <div className="flex items-center gap-1 bg-gradient-to-r from-blue-600 to-blue-800 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow-lg">
-              <FaWallet className="w-4 h-4 text-yellow-300" />
-              <span>
-                ₹{parseFloat(aepsBalance || "0.00").toLocaleString("en-IN", {
-                  minimumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-          )}
-
-
-          {/* 🤝 Refer to Friend */}
-          {/* <button
-            onClick={() => router.push("/refer")}
-            className="hidden sm:flex items-center gap-1.5 cursor-pointer bg-gradient-to-r from-[#033483] to-[#6DDC01] text-white px-3 py-1.5 rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105 shadow-md"
-          >
-            <FaShareAlt className="text-base" />
-            <span className="font-semibold text-sm">Refer to Friend</span>
-          </button> */}
-
-          {/* 🔔 Notifications */}
+        <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+          {/* Notifications */}
           <div className="relative cursor-pointer group">
             <div className="p-1.5 rounded-lg hover:bg-[#022b63]/60 transition-all duration-200">
               <FaBell className="text-white text-lg group-hover:text-[#6DDC01] transition-colors" />
@@ -315,7 +409,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
             </span>
           </div>
 
-          {/* 👤 Profile Section */}
+          {/* Profile Section */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -342,8 +436,9 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
                 )}
               </div>
               <FaChevronDown
-                className={`text-white text-xs transition-all duration-300 ${isProfileOpen ? "rotate-180 text-[#6DDC01]" : "group-hover:text-[#6DDC01]"
-                  }`}
+                className={`text-white text-xs transition-all duration-300 ${
+                  isProfileOpen ? "rotate-180 text-[#6DDC01]" : "group-hover:text-[#6DDC01]"
+                }`}
               />
             </button>
 
