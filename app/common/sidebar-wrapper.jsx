@@ -11,8 +11,8 @@ export default function SidebarWrapper({ isMobileOpen,   isCollapsed, onToggle, 
         </div>
       </div>
     }>
-      <Sidebar isMobileOpen={isMobileOpen} onClose={onClose}   isCollapsed={isCollapsed}
-  onToggle={onToggle} />
+      { <Sidebar isMobileOpen={isMobileOpen} onClose={onClose}   isCollapsed={isCollapsed}
+  onToggle={onToggle} /> }
     </Suspense>
   );
 }

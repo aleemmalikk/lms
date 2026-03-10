@@ -83,7 +83,7 @@ export const validateLoginAccess = (userRole) => {
   if (!allowedRoles.includes(normalizedRole)) {
     return {
       allowed: false,
-      redirectUrl: '/login',
+      redirectUrl: '/',
       message: 'Your role does not have permission to access this portal'
     };
   }
@@ -243,7 +243,7 @@ export const logout = () => {
   localStorage.removeItem("isAuthenticated");
   localStorage.removeItem("wallet_balance");
 
-  window.location.href = "/login";
+  window.location.href = "/";
 };
 
 
@@ -334,6 +334,10 @@ export const patchWithAuth = async (url, data, config = {}) => {
     throw error;
   }
 };
+
+
+
+
 
 export async function postWithAuth(endpoint, body, config = {}) {
   try {
