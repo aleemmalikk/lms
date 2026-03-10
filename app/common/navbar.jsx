@@ -244,7 +244,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <Link href="/" className="text-white text-xl font-bold">
+              <Link href="/lms.jpg" className="text-white text-xl font-bold">
                 Your Logo
               </Link>
             </div>
