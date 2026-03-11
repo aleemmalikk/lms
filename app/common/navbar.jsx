@@ -272,7 +272,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
                 <span>Login</span>
               </Link>
               <Link
-                href="/login/signuprequest"
+                href="/useronboarding"
                 className="flex items-center gap-2 bg-[#6DDC01] text-black px-4 py-2 rounded-lg hover:bg-[#5bc001] transition-colors duration-200 font-medium"
               >
                 <FaUserPlus />

@@ -176,6 +176,11 @@ export default function Sidebar({
       path: "/loans",
       icon: <FaMoneyBillWave size={18} />,
     },
+    //  {
+    //   label: "User Management",
+    //   path: "/useronboarding",
+    //   icon: <FaChartLine size={18} />,
+    // },
     {
       label: "Profile",
       path: "/profile",
@@ -186,6 +191,7 @@ export default function Sidebar({
       path: "/credit-report",
       icon: <FaChartBar size={18} />,
     },
+
 
     {
       label: "Consent Preference",
