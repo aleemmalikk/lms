@@ -141,6 +141,7 @@ export default function Sidebar({
     // { label: "Admin Helpdesk", path: "/adminhelpdesk", icon: <FaHeadset /> },
     // { label: "Check Status", path: "/status", icon: <FaChartLine /> },
     { label: "Loan Products", path: "/loanproducts", icon: <FaInfoCircle /> },
+    { label: "Users Onboarding", path: "/usersonboarding", icon: <FaUserShield /> },
   ];
 
 

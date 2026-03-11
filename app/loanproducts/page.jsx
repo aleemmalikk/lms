@@ -239,7 +239,7 @@ export default function LoanProductsPage() {
       <div className="flex justify-between items-center mb-8 pb-4 border-b-2 border-slate-100">
         <h2 className="text-2xl font-semibold text-slate-800 flex items-center gap-2">
           <span className="w-2 h-6 bg-indigo-500 rounded-full"></span>
-          Product Details
+          Application Details
         </h2>
         <button
           onClick={() => setCurrentView("view")}
@@ -584,7 +584,7 @@ export default function LoanProductsPage() {
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-slate-800 flex items-center gap-3">
               <span className="text-4xl">💰</span> 
-              Loan Product Management
+              Loan Application
             </h1>
             <p className="text-slate-500 mt-2 text-lg">
               {currentView === "add" 
