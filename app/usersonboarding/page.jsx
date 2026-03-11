@@ -135,16 +135,25 @@ export default function UsersOnboardingPage() {
     }
 
 
-    const users = list.map(u => ({
-      id: u.id,
-      public_id: u.public_id,
-      username: u.username,
-      role: u.role,
-      wallet: { balance: u.wallet_balance },
-      created_by_username: u.created_by || "System",
-      date_joined: u.created_at,
-      email: u.email || ""
-    }));
+   const users = list.map(u => ({
+  id: u.id,
+  public_id: u.role_uid, // API me role_uid hai
+  username: u.username,
+  role: u.role,
+
+  phone_number: u.phone_number,
+  first_name: u.first_name,
+  last_name: u.last_name,
+  pan_number: u.pan_number,
+
+  wallet: {
+    balance: u.wallet?.balance || "0"
+  },
+
+  created_by_username: u.created_by_username || "System",
+  date_joined: u.date_joined,
+  email: u.email || ""
+}));
 
     setUsers(users);
     setFilteredUsers(users);
@@ -953,10 +962,10 @@ export default function UsersOnboardingPage() {
                       Contact
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Created By
+                      Full name
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Created Date
+                      Pan Card
                     </th>
                     <th className="px-12 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Actions
@@ -992,7 +1001,7 @@ export default function UsersOnboardingPage() {
                                 )}
                               </div>
                               <div className="text-sm text-gray-500">
-                                ID: {user.public_id}
+                                ID: {user.public_id || "N/A"}
                               </div>
 
                             </div>
@@ -1002,7 +1011,7 @@ export default function UsersOnboardingPage() {
                           {getRoleBadge(user.role)}
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">{user.email || "—"}</div>
+                          <div className="text-sm text-gray-900">{user.phone_number || "—"}</div>
                           {user.wallet && (
                             <div className="text-sm text-green-600 font-medium">
                               ₹{parseFloat(user.wallet.balance || '0').toFixed(2)}
@@ -1012,7 +1021,7 @@ export default function UsersOnboardingPage() {
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-900 flex items-center">
                             <FaIdCard className="w-3 h-3 mr-1 text-gray-400" />
-                            {user.created_by_username || "System"}
+                            {user.first_name || ""} {user.last_name || ""}
                           </div>
                           
                         </td>
@@ -1020,7 +1029,7 @@ export default function UsersOnboardingPage() {
                           <div className="flex space-x-2">
                              <div className="text-sm text-gray-500 flex items-center">
                                 <FaCalendar className="w-3 h-3 mr-1 text-gray-400" />
-                                {user.date_joined ? new Date(user.date_joined).toLocaleDateString() : "N/A"}
+                                {user.pan_number || "N/A"}
                             </div>
                           </div>
                         </td>

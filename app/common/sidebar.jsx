@@ -142,6 +142,7 @@ export default function Sidebar({
     // { label: "Check Status", path: "/status", icon: <FaChartLine /> },
     { label: "Loan Products", path: "/loanproducts", icon: <FaInfoCircle /> },
     { label: "Users Onboarding", path: "/usersonboarding", icon: <FaUserShield /> },
+    { label: "Loan Eligibility", path: "/loan-eligibility", icon: <FaUsers /> },
   ];
 
 
