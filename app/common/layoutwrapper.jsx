@@ -158,7 +158,7 @@ export default function Provider({ children }) {
     serviceBarRoutes.some(route => pathname.startsWith(route));
 
   return (
-    <div className="bg-white">
+    <div className="bg-transparent">
 
       {showSuperAdminPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -249,8 +249,8 @@ export default function Provider({ children }) {
             </div>
 
             <main
-  className={`p-0 md:p-6 transition-all duration-300 
-  ${shouldShowServiceBar ? "mt-[80px]" : "mt-[44px]"}`}
+  className={`w-full p-0 transition-all duration-300 
+  ${shouldShowServiceBar ? "mt-[65px]" : "mt-[44px]"}`}
 >
               {children}
             </main>
