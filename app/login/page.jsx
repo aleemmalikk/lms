@@ -5,12 +5,12 @@ import EmailLogin from "./emaillogin";
 import MobileOtpLogin from "./mobilepage";
 
 export default function LoginPage() {
-  const [activeTab, setActiveTab] = useState("email");
+  const [activeTab, setActiveTab] = useState("mobileOtp");
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e0e7ff] to-[#f8fafc] p-4">
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
-        
+
         {/* Left Image Section - Fixed for proper image display */}
         <div className="relative flex flex-col justify-center items-center text-white text-center bg-[#112772] min-h-[250px] md:min-h-[300px]">
           {/* Image with proper containment */}
@@ -40,31 +40,30 @@ export default function LoginPage() {
           {/* Tabs */}
           <div className="flex mb-4 border-b border-gray-200">
             <button
-              className={`flex-1 py-2 text-sm font-semibold transition-all duration-300 ${
-                activeTab === "email"
+              className={`flex-1 py-2 text-sm font-semibold transition-all duration-300 ${activeTab === "mobileOtp"
                   ? "text-[#112772] border-b-2 border-[#112772]"
                   : "text-gray-500 hover:text-[#112772]"
-              }`}
-              onClick={() => setActiveTab("email")}
-            >
-              Email Login
-            </button>
-            <button
-              className={`flex-1 py-2 text-sm font-semibold transition-all duration-300 ${
-                activeTab === "mobileOtp"
-                  ? "text-[#112772] border-b-2 border-[#112772]"
-                  : "text-gray-500 hover:text-[#112772]"
-              }`}
+                }`}
               onClick={() => setActiveTab("mobileOtp")}
             >
               Mobile OTP
             </button>
+            <button
+              className={`flex-1 py-2 text-sm font-semibold transition-all duration-300 ${activeTab === "email"
+                  ? "text-[#112772] border-b-2 border-[#112772]"
+                  : "text-gray-500 hover:text-[#112772]"
+                }`}
+              onClick={() => setActiveTab("email")}
+            >
+              Email Login
+            </button>
+
           </div>
 
           {/* Login Form Container */}
           <div className="animate-fadeIn">
-            {activeTab === "email" && <EmailLogin />}
             {activeTab === "mobileOtp" && <MobileOtpLogin />}
+            {activeTab === "email" && <EmailLogin />}
           </div>
 
           {/* Footer */}
