@@ -142,6 +142,7 @@ export default function Sidebar({
     // { label: "Check Status", path: "/status", icon: <FaChartLine /> },
     { label: "Loan Products", path: "/loanproducts", icon: <FaInfoCircle /> },
     { label: "Users Onboarding", path: "/usersonboarding", icon: <FaUserShield /> },
+    { label: "Loan Eligibility", path: "/loan-eligibility", icon: <FaUsers /> },
   ];
 
 
@@ -177,6 +178,11 @@ export default function Sidebar({
       path: "/loans",
       icon: <FaMoneyBillWave size={18} />,
     },
+    //  {
+    //   label: "User Management",
+    //   path: "/useronboarding",
+    //   icon: <FaChartLine size={18} />,
+    // },
     {
       label: "Profile",
       path: "/profile",
@@ -187,6 +193,7 @@ export default function Sidebar({
       path: "/credit-report",
       icon: <FaChartBar size={18} />,
     },
+
 
     {
       label: "Consent Preference",

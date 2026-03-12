@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useWallet } from '../context/walletcontext';
+import { useWallet } from "../context/walletcontext";
 import {
   FaUserPlus,
   FaSearch,
@@ -21,7 +21,7 @@ import {
   FaIdCard,
   FaPlusCircle,
   FaMinusCircle,
-  FaCheck
+  FaCheck,
 } from "react-icons/fa";
 import { BASE_URL } from "../lib/api";
 
@@ -43,7 +43,7 @@ export default function UsersOnboardingPage() {
     total: 0,
     master: 0,
     dealer: 0,
-    retailer: 0
+    retailer: 0,
   });
   const [showMoneyModal, setShowMoneyModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -64,7 +64,6 @@ export default function UsersOnboardingPage() {
     checkPermissionsAndFetchUsers();
     fetchAdminBalance();
   }, []);
-
 
   useEffect(() => {
     filterUsers();
@@ -87,10 +86,9 @@ export default function UsersOnboardingPage() {
 
     setCurrentUserRole(userRole);
     setCurrentUserId(userId);
-    setCanCreateUsers(userRole !== 'retailer');
+    setCanCreateUsers(userRole !== "retailer");
     fetchUsers();
   };
-
 
   useEffect(() => {
     if (showSuccessPopup) {
@@ -110,19 +108,13 @@ export default function UsersOnboardingPage() {
     }
   }, [showErrorPopup]);
 
-
-
-
   const fetchUsers = async () => {
     const token = localStorage.getItem("accessToken");
     const role = localStorage.getItem("userRole"); // 🔥 FIX
 
-    const res = await fetch(
-      `${BASE_URL}user-hierarchy/my_hierarchy/`,
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    );
+    const res = await fetch(`${BASE_URL}user-hierarchy/my_hierarchy/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     const data = await res.json();
 
@@ -134,25 +126,31 @@ export default function UsersOnboardingPage() {
       list = data.users;
     }
 
-
-    const users = list.map(u => ({
+    const users = list.map((u) => ({
       id: u.id,
-      public_id: u.public_id,
+      public_id: u.role_uid,
       username: u.username,
       role: u.role,
-      wallet: { balance: u.wallet_balance },
-      created_by_username: u.created_by || "System",
-      date_joined: u.created_at,
-      email: u.email || ""
+
+      first_name: u.first_name,
+      last_name: u.last_name,
+      phone_number: u.phone_number,
+      email: u.email,
+      pan_number: u.pan_number,
+      date_of_birth: u.date_of_birth,
+      pincode: u.pincode,
+      employment_type: u.employment_type,
+      monthly_income: u.monthly_income,
+
+      wallet: {
+        balance: u.wallet?.balance || "0",
+      },
     }));
 
     setUsers(users);
     setFilteredUsers(users);
     setLoading(false);
   };
-
-
-
 
   const filterUsers = () => {
     if (!users || users.length === 0) {
@@ -163,46 +161,41 @@ export default function UsersOnboardingPage() {
     let filtered = [...users];
 
     filtered = filtered.filter(
-      user => user.id.toString() !== currentUserId.toString()
+      (user) => user.id.toString() !== currentUserId.toString(),
     );
 
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(user =>
-        (user.username && user.username.toLowerCase().includes(term)) ||
-        (user.email && user.email.toLowerCase().includes(term)) ||
-        user.public_id?.toLowerCase().includes(term) ||
-        (user.phone_number && user.phone_number.includes(searchTerm)) ||
-        (user.created_by_username && user.created_by_username.toLowerCase().includes(term))
+      filtered = filtered.filter(
+        (user) =>
+          (user.username && user.username.toLowerCase().includes(term)) ||
+          (user.email && user.email.toLowerCase().includes(term)) ||
+          user.public_id?.toLowerCase().includes(term) ||
+          (user.phone_number && user.phone_number.includes(searchTerm)) ||
+          (user.created_by_username &&
+            user.created_by_username.toLowerCase().includes(term)),
       );
     }
 
     if (roleFilter !== "all") {
-      filtered = filtered.filter(user => user.role === roleFilter);
+      filtered = filtered.filter((user) => user.role === roleFilter);
     }
 
     setFilteredUsers(filtered);
   };
 
-
   const indexOfLastUser = currentPage * itemsPerPage;
   const indexOfFirstUser = indexOfLastUser - itemsPerPage;
-  const paginatedUsers = filteredUsers.slice(
-    indexOfFirstUser,
-    indexOfLastUser
-  );
+  const paginatedUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-
-
-
 
   const calculateHierarchyStats = () => {
     const stats = {
       total: users.length,
-      master: users.filter(user => user.role === 'master').length,
-      dealer: users.filter(user => user.role === 'dealer').length,
-      retailer: users.filter(user => user.role === 'retailer').length
+      master: users.filter((user) => user.role === "master").length,
+      dealer: users.filter((user) => user.role === "dealer").length,
+      retailer: users.filter((user) => user.role === "retailer").length,
     };
 
     setHierarchyStats(stats);
@@ -210,23 +203,25 @@ export default function UsersOnboardingPage() {
 
   const getRoleBadge = (role) => {
     const roleStyles = {
-      'superadmin': 'bg-purple-100 text-purple-800 border border-purple-200',
-      'admin': 'bg-red-100 text-red-800 border border-red-200',
-      'master': 'bg-blue-100 text-blue-800 border border-blue-200',
-      'dealer': 'bg-green-100 text-green-800 border border-green-200',
-      'retailer': 'bg-orange-100 text-orange-800 border border-orange-200'
+      superadmin: "bg-purple-100 text-purple-800 border border-purple-200",
+      admin: "bg-red-100 text-red-800 border border-red-200",
+      master: "bg-blue-100 text-blue-800 border border-blue-200",
+      dealer: "bg-green-100 text-green-800 border border-green-200",
+      retailer: "bg-orange-100 text-orange-800 border border-orange-200",
     };
 
     const roleNames = {
-      'superadmin': 'Super Admin',
-      'admin': 'Admin',
-      'master': 'Master',
-      'dealer': 'Dealer',
-      'retailer': 'Retailer'
+      superadmin: "Super Admin",
+      admin: "Admin",
+      master: "Master",
+      dealer: "Dealer",
+      retailer: "Retailer",
     };
 
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-medium ${roleStyles[role]}`}>
+      <span
+        className={`px-3 py-1 rounded-full text-xs font-medium ${roleStyles[role]}`}
+      >
         {roleNames[role]}
       </span>
     );
@@ -234,33 +229,33 @@ export default function UsersOnboardingPage() {
 
   const getRoleIcon = (role) => {
     const icons = {
-      'superadmin': <FaUserShield className="w-5 h-5" />,
-      'admin': <FaUserTie className="w-5 h-5" />,
-      'master': <FaUserTie className="w-5 h-5" />,
-      'dealer': <FaStore className="w-5 h-5" />,
-      'retailer': <FaShoppingCart className="w-5 h-5" />
+      superadmin: <FaUserShield className="w-5 h-5" />,
+      admin: <FaUserTie className="w-5 h-5" />,
+      master: <FaUserTie className="w-5 h-5" />,
+      dealer: <FaStore className="w-5 h-5" />,
+      retailer: <FaShoppingCart className="w-5 h-5" />,
     };
     return icons[role] || <FaUsers className="w-5 h-5" />;
   };
 
   const getAvailableRolesForFilter = () => {
-    const roles = users.map(user => user.role);
+    const roles = users.map((user) => user.role);
     const uniqueRoles = [...new Set(roles)];
 
     const roleNames = {
-      'superadmin': 'Super Admin',
-      'admin': 'Admin',
-      'master': 'Master',
-      'dealer': 'Dealer',
-      'retailer': 'Retailer'
+      superadmin: "Super Admin",
+      admin: "Admin",
+      master: "Master",
+      dealer: "Dealer",
+      retailer: "Retailer",
     };
 
     return [
-      { value: 'all', label: 'All Roles' },
-      ...uniqueRoles.map(role => ({
+      { value: "all", label: "All Roles" },
+      ...uniqueRoles.map((role) => ({
         value: role,
-        label: roleNames[role] || role
-      }))
+        label: roleNames[role] || role,
+      })),
     ];
   };
 
@@ -286,15 +281,13 @@ export default function UsersOnboardingPage() {
       });
 
       if (res.ok) {
-        setUsers(prev => prev.filter(u => u.id !== id));
+        setUsers((prev) => prev.filter((u) => u.id !== id));
 
         setSuccessMessage(`User "${username}" deleted successfully`);
         setShowSuccessPopup(true);
       } else {
         const data = await res.json();
-        setSuccessMessage(
-          extractErrorMessage(data, "Failed to delete user")
-        );
+        setSuccessMessage(extractErrorMessage(data, "Failed to delete user"));
         setShowErrorPopup(true);
       }
     } catch (err) {
@@ -305,7 +298,6 @@ export default function UsersOnboardingPage() {
       setUserToDelete(null);
     }
   };
-
 
   // https://chatgpt.com/c/697101db-aeac-8321-a9f2-9b808915bed0
 
@@ -320,8 +312,6 @@ export default function UsersOnboardingPage() {
 
     return fallback;
   };
-
-
 
   const handleConfirmWithPin = async () => {
     if (!walletPin) {
@@ -351,7 +341,9 @@ export default function UsersOnboardingPage() {
         amount: parseFloat(amount),
         transaction_type: transactionType === "add" ? "credit" : "debit",
         pin: walletPin,
-        notes: notes || `${transactionType === "add" ? "Added" : "Deducted"} money by ${localStorage.getItem("username") || "Admin"}`,
+        notes:
+          notes ||
+          `${transactionType === "add" ? "Added" : "Deducted"} money by ${localStorage.getItem("username") || "Admin"}`,
       };
 
       const res = await fetch(`${BASE_URL}wallets/direct_transfer/`, {
@@ -378,11 +370,10 @@ export default function UsersOnboardingPage() {
         setAdminBalance(data.admin_balance);
       }
 
-
       setSuccessMessage(
-        `${transactionType === "add" ? "Successfully added" : "Successfully deducted"} ₹${parseFloat(amount).toLocaleString('en-IN')}\n` +
-        `User Balance: ₹${parseFloat(data.user_balance).toLocaleString('en-IN')}\n` +
-        `Your Balance: ₹${parseFloat(data.admin_balance).toLocaleString('en-IN')}`
+        `${transactionType === "add" ? "Successfully added" : "Successfully deducted"} ₹${parseFloat(amount).toLocaleString("en-IN")}\n` +
+          `User Balance: ₹${parseFloat(data.user_balance).toLocaleString("en-IN")}\n` +
+          `Your Balance: ₹${parseFloat(data.admin_balance).toLocaleString("en-IN")}`,
       );
       setPopupAmount(amount);
       setShowSuccessPopup(true);
@@ -391,8 +382,8 @@ export default function UsersOnboardingPage() {
         prevUsers.map((u) =>
           u.id === selectedUser.id
             ? { ...u, wallet: { ...u.wallet, balance: data.user_balance } }
-            : u
-        )
+            : u,
+        ),
       );
 
       setAdminBalance(data.admin_balance);
@@ -405,11 +396,8 @@ export default function UsersOnboardingPage() {
         setShowMoneyModal(false);
         setSelectedUser(null);
       }, 1000);
-
     } catch (err) {
-      setSuccessMessage(
-        err?.message || "Transaction error. Please try again."
-      );
+      setSuccessMessage(err?.message || "Transaction error. Please try again.");
       setShowErrorPopup(true);
       setShowPinModal(false);
     } finally {
@@ -417,11 +405,10 @@ export default function UsersOnboardingPage() {
     }
   };
 
-
   const canDeleteUser = (userRole, userId) => {
     if (userId.toString() === currentUserId.toString()) return false;
 
-    const roleOrder = ['superadmin', 'admin', 'master', 'dealer', 'retailer'];
+    const roleOrder = ["superadmin", "admin", "master", "dealer", "retailer"];
 
     const currentIndex = roleOrder.indexOf(currentUserRole);
     const targetIndex = roleOrder.indexOf(userRole);
@@ -429,14 +416,18 @@ export default function UsersOnboardingPage() {
     return targetIndex > currentIndex;
   };
 
-
-
   const canManageWallet = (userRole, userId) => {
     if (userId.toString() === currentUserId.toString()) {
       return false;
     }
 
-    const roleHierarchy = ['superadmin', 'admin', 'master', 'dealer', 'retailer'];
+    const roleHierarchy = [
+      "superadmin",
+      "admin",
+      "master",
+      "dealer",
+      "retailer",
+    ];
     const currentUserIndex = roleHierarchy.indexOf(currentUserRole);
     const targetUserIndex = roleHierarchy.indexOf(userRole);
 
@@ -445,12 +436,12 @@ export default function UsersOnboardingPage() {
 
   const getRoleName = (roleValue) => {
     const roleNames = {
-      'superadmin': 'Super Admin',
-      'admin': 'Admin',
-      'master': 'Master',
-      'dealer': 'Dealer',
-      'retailer': 'Retailer',
-      'all': 'All Roles'
+      superadmin: "Super Admin",
+      admin: "Admin",
+      master: "Master",
+      dealer: "Dealer",
+      retailer: "Retailer",
+      all: "All Roles",
     };
     return roleNames[roleValue] || roleValue;
   };
@@ -461,8 +452,6 @@ export default function UsersOnboardingPage() {
     setAmount("");
     setShowMoneyModal(true);
   };
-
-
 
   const fetchAdminBalance = async () => {
     try {
@@ -494,7 +483,6 @@ export default function UsersOnboardingPage() {
 
   return (
     <div className="relative">
-
       {showDeletePopup && userToDelete && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <motion.div
@@ -511,7 +499,8 @@ export default function UsersOnboardingPage() {
                 <p className="mt-2 text-gray-700">
                   Are you sure you want to delete user
                   <span className="font-semibold text-red-600">
-                    {" "}{userToDelete.username}
+                    {" "}
+                    {userToDelete.username}
                   </span>
                   ?
                   <br />
@@ -541,7 +530,6 @@ export default function UsersOnboardingPage() {
           </motion.div>
         </div>
       )}
-
 
       {showErrorPopup && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm">
@@ -574,8 +562,6 @@ export default function UsersOnboardingPage() {
         </div>
       )}
 
-
-
       {showSuccessPopup && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <motion.div
@@ -589,9 +575,7 @@ export default function UsersOnboardingPage() {
                 <h3 className="text-lg font-semibold text-green-800">
                   Success
                 </h3>
-                <p className="mt-2 text-green-700">
-                  {successMessage}
-                </p>
+                <p className="mt-2 text-green-700">{successMessage}</p>
               </div>
             </div>
 
@@ -620,9 +604,14 @@ export default function UsersOnboardingPage() {
                 <FaUsers className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Users Management</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Users Management
+                </h1>
                 <p className="text-gray-600 mt-1">
-                  Manage users based on your role: <span className="font-medium text-[#112772]">{currentUserRole}</span>
+                  Manage users based on your role:{" "}
+                  <span className="font-medium text-[#112772]">
+                    {currentUserRole}
+                  </span>
                 </p>
               </div>
             </div>
@@ -647,7 +636,7 @@ export default function UsersOnboardingPage() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8"
         > */}
-          {/* <div className="bg-white rounded-xl shadow border border-gray-200 p-6">
+        {/* <div className="bg-white rounded-xl shadow border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Users</p>
@@ -658,7 +647,7 @@ export default function UsersOnboardingPage() {
               </div>
             </div>
           </div> */}
-{/* 
+        {/* 
           {['master', 'dealer', 'retailer'].map(role => {
             const count = hierarchyStats[role];
             const roleColors = {
@@ -688,7 +677,7 @@ export default function UsersOnboardingPage() {
             );
           })} */}
 
-          {/* <div className="bg-[#112772] rounded-xl shadow p-6">
+        {/* <div className="bg-[#112772] rounded-xl shadow p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-blue-100">Your Role</p>
@@ -731,7 +720,7 @@ export default function UsersOnboardingPage() {
                   className="border border-gray-300 text-black rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#112772] focus:border-transparent min-w-[140px]"
                   disabled={loading}
                 >
-                  {getAvailableRolesForFilter().map(role => (
+                  {getAvailableRolesForFilter().map((role) => (
                     <option key={role.value} value={role.value}>
                       {role.label}
                     </option>
@@ -742,14 +731,13 @@ export default function UsersOnboardingPage() {
           </div>
         </motion.div>
 
-
         {/* Money Transaction Modal - Now positioned inside the content area */}
         {showMoneyModal && selectedUser && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+            style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}
           >
             {/* Semi-transparent overlay - NO BLACK BACKGROUND */}
             <div
@@ -778,9 +766,14 @@ export default function UsersOnboardingPage() {
                       {selectedUser.username?.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div className="font-medium text-blue-600">{selectedUser.username}</div>
+                      <div className="font-medium text-blue-600">
+                        {selectedUser.username}
+                      </div>
                       <div className="text-sm text-gray-600">
-                        Current Balance: ₹{parseFloat(selectedUser.wallet?.balance || '0').toFixed(2)}
+                        Current Balance: ₹
+                        {parseFloat(
+                          selectedUser.wallet?.balance || "0",
+                        ).toFixed(2)}
                       </div>
                     </div>
                   </div>
@@ -806,7 +799,6 @@ export default function UsersOnboardingPage() {
                   />
                 </div>
 
-
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Notes (Reason)
@@ -820,7 +812,6 @@ export default function UsersOnboardingPage() {
                   />
                 </div>
 
-
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowMoneyModal(false)}
@@ -831,10 +822,11 @@ export default function UsersOnboardingPage() {
                   </button>
                   <button
                     onClick={() => setShowPinModal(true)}
-                    className={`flex-1 px-4 py-1 rounded-lg text-white transition-colors flex items-center justify-center ${transactionType === "add"
-                      ? "bg-emerald-600 hover:bg-emerald-700"
-                      : "bg-amber-600 hover:bg-amber-700"
-                      }`}
+                    className={`flex-1 px-4 py-1 rounded-lg text-white transition-colors flex items-center justify-center ${
+                      transactionType === "add"
+                        ? "bg-emerald-600 hover:bg-emerald-700"
+                        : "bg-amber-600 hover:bg-amber-700"
+                    }`}
                     disabled={transactionLoading}
                   >
                     {transactionLoading ? (
@@ -859,8 +851,6 @@ export default function UsersOnboardingPage() {
             </div>
           </motion.div>
         )}
-
-
 
         {showPinModal && (
           <motion.div
@@ -910,7 +900,6 @@ export default function UsersOnboardingPage() {
           </motion.div>
         )}
 
-
         {/* Users Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -921,12 +910,13 @@ export default function UsersOnboardingPage() {
           {filteredUsers.length === 0 ? (
             <div className="text-center py-12">
               <FaExclamationTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No users found
+              </h3>
               <p className="text-gray-600 mb-4">
                 {users.length === 0
                   ? "No users in your hierarchy yet."
-                  : `No ${getRoleName(roleFilter).toLowerCase()} users match your search criteria.`
-                }
+                  : `No ${getRoleName(roleFilter).toLowerCase()} users match your search criteria.`}
               </p>
               {canCreateUsers && users.length === 0 && (
                 <Link
@@ -943,22 +933,43 @@ export default function UsersOnboardingPage() {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-16 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      User
+                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                      ID
                     </th>
-                    <th className="px-9 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Role
+
+                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                      Full Name
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Contact
+
+                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                      Mobile Number
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Created By
+
+                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                      Email
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Created Date
+
+                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                      PAN No
                     </th>
-                    <th className="px-12 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+
+                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                      DOB
+                    </th>
+
+                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                      Pincode
+                    </th>
+
+                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                      Employment
+                    </th>
+
+                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                      Monthly Income
+                    </th>
+
+                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
                       Actions
                     </th>
                   </tr>
@@ -966,8 +977,6 @@ export default function UsersOnboardingPage() {
 
                 <tbody className="bg-white divide-y divide-gray-200">
                   {paginatedUsers.map((user, index) => {
-                    const isCurrentUser = user.id.toString() === currentUserId.toString();
-
                     return (
                       <motion.tr
                         key={user.id}
@@ -976,106 +985,84 @@ export default function UsersOnboardingPage() {
                         transition={{ delay: index * 0.05 }}
                         className="hover:bg-gray-50"
                       >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3 ${isCurrentUser ? 'bg-green-600' : 'bg-[#112772]'
-                              }`}>
-                              {user.username?.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {user.username}
-                                {isCurrentUser && (
-                                  <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
-                                    You
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                ID: {user.public_id}
-                              </div>
+                        {/* ID */}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {user.role_uid || user.id}
+                        </td>
 
-                            </div>
-                          </div>
+                        {/* Full Name */}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {user.first_name || ""} {user.last_name || ""}
                         </td>
-                        <td className="px-6 py-4">
-                          {getRoleBadge(user.role)}
+
+                        {/* Mobile */}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {user.phone_number || "—"}
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">{user.email || "—"}</div>
-                          {user.wallet && (
-                            <div className="text-sm text-green-600 font-medium">
-                              ₹{parseFloat(user.wallet.balance || '0').toFixed(2)}
-                            </div>
-                          )}
+
+                        {/* Email */}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {user.email || "—"}
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 flex items-center">
-                            <FaIdCard className="w-3 h-3 mr-1 text-gray-400" />
-                            {user.created_by_username || "System"}
-                          </div>
-                          
+
+                        {/* PAN */}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {user.pan_number || "—"}
                         </td>
+
+                        {/* DOB */}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {user.date_of_birth || "—"}
+                        </td>
+
+                        {/* Pincode */}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {user.pincode || "—"}
+                        </td>
+
+                        {/* Employment */}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {user.employment_type || "—"}
+                        </td>
+
+                        {/* Monthly Income */}
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {user.monthly_income || "—"}
+                        </td>
+
+                        {/* Actions */}
                         <td className="px-6 py-4">
                           <div className="flex space-x-2">
-                             <div className="text-sm text-gray-500 flex items-center">
-                                <FaCalendar className="w-3 h-3 mr-1 text-gray-400" />
-                                {user.date_joined ? new Date(user.date_joined).toLocaleDateString() : "N/A"}
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="px-6 py-4">
-                          <div className="flex space-x-1">
                             <button
-                              onClick={() => router.push(`/usersonboarding/${user.id}`)}
+                              onClick={() =>
+                                router.push(`/usersonboarding/${user.id}`)
+                              }
                               className="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded-lg"
                               title="View"
                             >
-                            <FaEye className="w-4 h-4" />
+                              <FaEye className="w-4 h-4" />
                             </button>
+
                             <button
-                              onClick={() => router.push(`/usersonboarding/${user.id}/edit`)}
+                              onClick={() =>
+                                router.push(`/usersonboarding/${user.id}/edit`)
+                              }
                               className="text-green-600 hover:text-green-900 p-2 hover:bg-green-50 rounded-lg"
                               title="Edit"
                             >
                               <FaEdit className="w-4 h-4" />
                             </button>
 
-                            {/* Add Money Button */}
-                            {/* {canManageWallet(user.role, user.id) && (
-                              <button
-                                onClick={() => handleMoneyTransactionClick(user, "add")}
-                                className="text-emerald-600 hover:text-emerald-900 p-2 hover:bg-emerald-50 rounded-lg"
-                                title="Add Money"
-                              >
-                                <FaPlusCircle className="w-4 h-4" />
-                              </button>
-                            )} */}
-
-                            {/* Deduct Money Button */}
-                            {/* {canManageWallet(user.role, user.id) && user.wallet && parseFloat(user.wallet.balance || '0') > 0 && (
-                              <button
-                                onClick={() => handleMoneyTransactionClick(user, "deduct")}
-                                className="text-amber-600 hover:text-amber-900 p-2 hover:bg-amber-50 rounded-lg"
-                                title="Deduct Money"
-                              >
-                                <FaMinusCircle className="w-4 h-4" />
-                              </button>
-                            )} */}
-
-                            {canDeleteUser(user.role, user.id) && (
-                              <button
-                                onClick={() => {
-                                  setUserToDelete(user);
-                                  setShowDeletePopup(true);
-                                }}
-                                className="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded-lg"
-                                title="Delete"
-                              >
-                                <FaTrash className="w-4 h-4" />
-                              </button>
-                            )}
+                            <button
+                              onClick={() => {
+                                setUserToDelete(user);
+                                setShowDeletePopup(true);
+                              }}
+                              className="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded-lg"
+                              title="Delete"
+                            >
+                              <FaTrash className="w-4 h-4" />
+                            </button>
                           </div>
                         </td>
                       </motion.tr>
@@ -1096,10 +1083,11 @@ export default function UsersOnboardingPage() {
                     <button
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage((p) => p - 1)}
-                      className={`px-3 py-1 rounded-lg border text-sm ${currentPage === 1
-                        ? "text-gray-400 border-gray-200 cursor-not-allowed"
-                        : "text-gray-700 border-gray-300 hover:bg-gray-100"
-                        }`}
+                      className={`px-3 py-1 rounded-lg border text-sm ${
+                        currentPage === 1
+                          ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                          : "text-gray-700 border-gray-300 hover:bg-gray-100"
+                      }`}
                     >
                       Prev
                     </button>
@@ -1108,10 +1096,11 @@ export default function UsersOnboardingPage() {
                       <button
                         key={i}
                         onClick={() => setCurrentPage(i + 1)}
-                        className={`px-3 py-1 rounded-lg text-sm ${currentPage === i + 1
-                          ? "bg-[#112772] text-white"
-                          : "border border-gray-300 text-gray-700 hover:bg-gray-100"
-                          }`}
+                        className={`px-3 py-1 rounded-lg text-sm ${
+                          currentPage === i + 1
+                            ? "bg-[#112772] text-white"
+                            : "border border-gray-300 text-gray-700 hover:bg-gray-100"
+                        }`}
                       >
                         {i + 1}
                       </button>
@@ -1120,17 +1109,17 @@ export default function UsersOnboardingPage() {
                     <button
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage((p) => p + 1)}
-                      className={`px-3 py-1 rounded-lg border text-sm ${currentPage === totalPages
-                        ? "text-gray-400 border-gray-200 cursor-not-allowed"
-                        : "text-gray-700 border-gray-300 hover:bg-gray-100"
-                        }`}
+                      className={`px-3 py-1 rounded-lg border text-sm ${
+                        currentPage === totalPages
+                          ? "text-gray-400 border-gray-200 cursor-not-allowed"
+                          : "text-gray-700 border-gray-300 hover:bg-gray-100"
+                      }`}
                     >
                       Next
                     </button>
                   </div>
                 </div>
               )}
-
             </div>
           )}
         </motion.div>
