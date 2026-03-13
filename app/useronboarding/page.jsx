@@ -8,6 +8,7 @@ import Step1Mobile from "./Step1Mobile";
 import Step2Personal from "./Step2Personal";
 import Step3Address from "./Step3Address";
 import Step4Employment from "./Step4Employment";
+import { useSearchParams } from "next/navigation";
 
 export default function OnboardingForm() {
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,7 @@ export default function OnboardingForm() {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(0);
   const [authToken, setAuthToken] = useState(null);
+  const searchParams = useSearchParams();
 
   const [form, setForm] = useState({
     mobile: "",
@@ -33,8 +35,27 @@ export default function OnboardingForm() {
     annualIncome: "",
     businessName: "",
     annualTurnover: "",
-    aadhaar: ""
+    aadhaar: "",
+
+    cibil: "",
+    loanAmount: ""
   });
+
+
+  useEffect(() => {
+
+    const mobileFromUrl = searchParams.get("mobile");
+
+    if (mobileFromUrl) {
+
+      setForm(prev => ({
+        ...prev,
+        mobile: mobileFromUrl
+      }));
+
+    }
+
+  }, [searchParams]);
 
   // Check user authentication and onboarding status
   useEffect(() => {
@@ -42,7 +63,7 @@ export default function OnboardingForm() {
       try {
         // Get token from localStorage
         const token = localStorage.getItem("access_token");
-        
+
         if (!token) {
           // No token means new user - show onboarding
           setShowOnboard(true);
@@ -54,7 +75,7 @@ export default function OnboardingForm() {
 
         // Check if user profile exists
         const response = await getWithAuth("users/update_profile/");
-        
+
         // If we get here without error, user exists
         // Check if profile is complete based on response
         if (response && response.onboarded === true) {
@@ -64,10 +85,10 @@ export default function OnboardingForm() {
         }
       } catch (error) {
         console.log('Error checking user:', error);
-        
+
         // Check if error is because profile doesn't exist
-        if (error.response?.status === 404 || 
-            error.response?.data?.detail?.includes("not found")) {
+        if (error.response?.status === 404 ||
+          error.response?.data?.detail?.includes("not found")) {
           setShowOnboard(true); // New user needs onboarding
         } else {
           // For other errors, still show onboarding
@@ -173,22 +194,20 @@ export default function OnboardingForm() {
               >
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm
-                  ${
-                    step >= s.number
+                  ${step >= s.number
                       ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
                       : "bg-gray-200 text-gray-600"
-                  }`}
+                    }`}
                 >
                   {step > s.number ? "✓" : s.icon}
                 </div>
                 {index < steps.length - 1 && (
                   <div
                     className={`flex-1 h-1 mx-2 rounded
-                    ${
-                      step > s.number
+                    ${step > s.number
                         ? "bg-gradient-to-r from-indigo-600 to-purple-600"
                         : "bg-gray-200"
-                    }`}
+                      }`}
                   />
                 )}
               </div>
@@ -199,9 +218,8 @@ export default function OnboardingForm() {
             {steps.map((s) => (
               <span
                 key={s.number}
-                className={`text-xs font-medium ${
-                  step >= s.number ? "text-indigo-600" : "text-gray-400"
-                }`}
+                className={`text-xs font-medium ${step >= s.number ? "text-indigo-600" : "text-gray-400"
+                  }`}
               >
                 {s.title}
               </span>
@@ -226,36 +244,36 @@ export default function OnboardingForm() {
               className="w-full"
             >
               {step === 1 && (
-                <Step1Mobile 
-                  form={form} 
-                  setForm={setForm} 
+                <Step1Mobile
+                  form={form}
+                  setForm={setForm}
                   next={next}
                   setAuthToken={setAuthToken}
                 />
               )}
 
               {step === 2 && (
-                <Step2Personal 
-                  form={form} 
-                  setForm={setForm} 
-                  next={next} 
-                  prev={prev} 
+                <Step2Personal
+                  form={form}
+                  setForm={setForm}
+                  next={next}
+                  prev={prev}
                 />
               )}
 
               {step === 3 && (
-                <Step3Address 
-                  form={form} 
-                  setForm={setForm} 
-                  next={next} 
-                  prev={prev} 
+                <Step3Address
+                  form={form}
+                  setForm={setForm}
+                  next={next}
+                  prev={prev}
                 />
               )}
 
               {step === 4 && (
-                <Step4Employment 
-                  form={form} 
-                  setForm={setForm} 
+                <Step4Employment
+                  form={form}
+                  setForm={setForm}
                   prev={prev}
                   authToken={authToken}
                 />
