@@ -1,12 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { IndianRupee, Percent, Clock, Tag, AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://192.168.29.196:8000/apis/";
 
 export default function LoanForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({
     name: "",
     mobile: "",
@@ -15,80 +18,151 @@ export default function LoanForm() {
     income: "",
     loanAmount: ""
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [eligibilityResult, setEligibilityResult] = useState(null);
   const [errors, setErrors] = useState({});
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-    // Clear field error when user starts typing
-    if (errors[e.target.name]) {
-      setErrors({
-        ...errors,
-        [e.target.name]: null
-      });
+
+    const { name, value } = e.target;
+
+    setForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    if (name === "mobile") {
+
+      const clean = value.replace(/\D/g, "");
+
+      if (clean.length === 10) {
+        fetchUserProfile(clean);
+      }
+
     }
+
   };
 
+
+  useEffect(() => {
+
+    const mobileFromUrl = searchParams.get("mobile");
+
+    if (mobileFromUrl) {
+
+      setForm(prev => ({
+        ...prev,
+        mobile: mobileFromUrl
+      }));
+
+      fetchUserProfile(mobileFromUrl);
+
+    }
+
+  }, [searchParams]);
+
+
   const validateForm = () => {
-    const newErrors = {};
+
+    const newErrors = {}
 
     if (!form.name.trim()) {
-      newErrors.name = "Name is required";
+      newErrors.name = "Name is required"
     }
 
     if (!form.mobile) {
-      newErrors.mobile = "Mobile number is required";
-    } else if (!/^[6-9]\d{9}$/.test(form.mobile)) {
-      newErrors.mobile = "Enter valid 10 digit mobile number starting with 6-9";
+      newErrors.mobile = "Mobile number is required"
     }
 
     if (!form.pan) {
-      newErrors.pan = "PAN number is required";
-    } else if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(form.pan)) {
-      newErrors.pan = "Invalid PAN format (ABCDE1234F)";
+      newErrors.pan = "PAN number is required"
     }
 
-    if (!form.cibil) {
-      newErrors.cibil = "CIBIL score is required";
-    } else if (form.cibil < 300 || form.cibil > 900) {
-      newErrors.cibil = "CIBIL score must be between 300 - 900";
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+
+    if (form.pan && !panRegex.test(form.pan)) {
+      newErrors.pan = "Invalid PAN format"
     }
 
-    if (!form.income) {
-      newErrors.income = "Monthly income is required";
-    } else if (form.income <= 0) {
-      newErrors.income = "Income must be greater than 0";
+    if (!form.cibil || !form.income || !form.loanAmount) {
+      newErrors.profile = "User profile not loaded. Enter valid mobile."
     }
 
-    if (!form.loanAmount) {
-      newErrors.loanAmount = "Loan amount is required";
-    } else if (form.loanAmount <= 0) {
-      newErrors.loanAmount = "Loan amount must be greater than 0";
+    setErrors(newErrors)
+
+    return Object.keys(newErrors).length === 0
+  }
+
+
+  const fetchUserProfile = async (mobile) => {
+
+    setProfileLoading(true);
+
+    try {
+
+      const res = await axios.get(
+        `${BASE_URL}public-user/check_mobile/?mobile=${mobile}`
+      );
+
+      if (!res.data.exists) {
+
+        router.push(`/useronboarding?mobile=${mobile}`);
+        return;
+      }
+
+      const user = res.data.user;
+
+      if (!user.cibil_score || !user.monthly_income || !user.loan_amount) {
+
+        alert("User profile incomplete. Please complete onboarding.");
+
+        router.push(`/useronboarding?mobile=${mobile}`);
+
+        return;
+      }
+
+      setForm(prev => ({
+        ...prev,
+        cibil: user.cibil_score,
+        income: user.monthly_income,
+        loanAmount: user.loan_amount
+      }));
+
+    } catch (error) {
+
+      console.error("User fetch error:", error);
+
+    } finally {
+
+      setProfileLoading(false);
+
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const checkEligibility = async (formData) => {
     try {
+
       const response = await axios.post(`${BASE_URL}loan-eligibility/check/`, {
-        name: formData.name,
-        mobile: formData.mobile,
-        pan_number: formData.pan,
-        cibil_score: parseInt(formData.cibil),
-        monthly_income: parseFloat(formData.income),
-        loan_amount: parseFloat(formData.loanAmount)
+
+        name: form.name,
+        mobile: form.mobile,
+        pan_number: form.pan,
+
+        cibil_score: Number(form.cibil),
+        monthly_income: Number(form.income),
+        loan_amount: Number(form.loanAmount)
+
       });
 
       return response.data;
+
     } catch (error) {
+
       console.error("Eligibility check error:", error);
+
       throw new Error(
         error.response?.data?.message ||
         error.response?.data?.detail ||
@@ -100,7 +174,7 @@ export default function LoanForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate form
     if (!validateForm()) {
       return;
@@ -111,7 +185,7 @@ export default function LoanForm() {
 
     try {
       const result = await checkEligibility(form);
-      
+
       // Handle the API response structure
       if (result.status === "eligible" && result.eligible_loans?.length > 0) {
         setEligibilityResult({
@@ -178,9 +252,8 @@ export default function LoanForm() {
                   placeholder="Enter your full name"
                   value={form.name}
                   onChange={handleChange}
-                  className={`w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] ${
-                    errors.name ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] ${errors.name ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
                 {errors.name && (
                   <p className="text-red-500 text-xs mt-1">{errors.name}</p>
@@ -199,9 +272,8 @@ export default function LoanForm() {
                   placeholder="Enter 10 digit mobile"
                   value={form.mobile}
                   onChange={handleChange}
-                  className={`w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] ${
-                    errors.mobile ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] ${errors.mobile ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
                 {errors.mobile && (
                   <p className="text-red-500 text-xs mt-1">{errors.mobile}</p>
@@ -219,90 +291,38 @@ export default function LoanForm() {
                   placeholder="ABCDE1234F"
                   value={form.pan}
                   onChange={(e) =>
-                    setForm({
-                      ...form,
-                      pan: e.target.value.toUpperCase()
+                    handleChange({
+                      target: {
+                        name: "pan",
+                        value: e.target.value.toUpperCase()
+                      }
                     })
                   }
-                  className={`w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] uppercase ${
-                    errors.pan ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] uppercase ${errors.pan ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   maxLength="10"
                 />
                 {errors.pan && (
                   <p className="text-red-500 text-xs mt-1">{errors.pan}</p>
                 )}
-              </div>
 
-              {/* CIBIL Score */}
-              <div>
-                <label className="block mb-1 font-medium text-gray-700">
-                  CIBIL Score <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="cibil"
-                  placeholder="300 - 900"
-                  value={form.cibil}
-                  onChange={handleChange}
-                  min="300"
-                  max="900"
-                  className={`w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] ${
-                    errors.cibil ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {errors.cibil && (
-                  <p className="text-red-500 text-xs mt-1">{errors.cibil}</p>
+                {errors.profile && (
+                  <p className="text-red-500 text-xs mt-1">{errors.profile}</p>
                 )}
               </div>
 
-              {/* Monthly Income */}
-              <div>
-                <label className="block mb-1 font-medium text-gray-700">
-                  Monthly Income (₹) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="income"
-                  placeholder="Enter monthly income"
-                  value={form.income}
-                  onChange={handleChange}
-                  min="0"
-                  className={`w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] ${
-                    errors.income ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {errors.income && (
-                  <p className="text-red-500 text-xs mt-1">{errors.income}</p>
-                )}
-              </div>
-
-              {/* Loan Amount */}
-              <div>
-                <label className="block mb-1 font-medium text-gray-700">
-                  Loan Amount (₹) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="loanAmount"
-                  placeholder="Enter loan amount"
-                  value={form.loanAmount}
-                  onChange={handleChange}
-                  min="0"
-                  className={`w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#1e3a8a] ${
-                    errors.loanAmount ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {errors.loanAmount && (
-                  <p className="text-red-500 text-xs mt-1">{errors.loanAmount}</p>
-                )}
-              </div>
 
               {/* Button - Full width */}
               <div className="md:col-span-2">
+
+                {profileLoading && (
+                  <p className="text-sm text-blue-600 mb-2">
+                    Fetching user profile...
+                  </p>
+                )}
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || profileLoading}
                   className="w-full bg-gradient-to-r from-[#0f172a] via-[#1e3a8a] to-[#2563eb] text-white py-3 rounded-lg hover:from-[#1e3a8a] hover:via-[#2563eb] hover:to-[#3b82f6] font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading ? (
@@ -323,13 +343,12 @@ export default function LoanForm() {
             /* Eligibility Result */
             <div className="space-y-6">
               {/* Result Header */}
-              <div className={`p-6 rounded-lg ${
-                eligibilityResult.status === "approved" 
-                  ? "bg-green-50 border-2 border-green-200" 
-                  : eligibilityResult.status === "rejected"
+              <div className={`p-6 rounded-lg ${eligibilityResult.status === "approved"
+                ? "bg-green-50 border-2 border-green-200"
+                : eligibilityResult.status === "rejected"
                   ? "bg-red-50 border-2 border-red-200"
                   : "bg-yellow-50 border-2 border-yellow-200"
-              }`}>
+                }`}>
                 <div className="flex items-center gap-3">
                   {eligibilityResult.status === "approved" ? (
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -345,26 +364,24 @@ export default function LoanForm() {
                     </div>
                   )}
                   <div>
-                    <h2 className={`text-xl font-bold ${
-                      eligibilityResult.status === "approved" 
-                        ? "text-green-800" 
-                        : eligibilityResult.status === "rejected"
+                    <h2 className={`text-xl font-bold ${eligibilityResult.status === "approved"
+                      ? "text-green-800"
+                      : eligibilityResult.status === "rejected"
                         ? "text-red-800"
                         : "text-yellow-800"
-                    }`}>
-                      {eligibilityResult.status === "approved" 
-                        ? "You're Eligible!" 
+                      }`}>
+                      {eligibilityResult.status === "approved"
+                        ? "You're Eligible!"
                         : eligibilityResult.status === "rejected"
-                        ? "Not Eligible"
-                        : "Error"}
+                          ? "Not Eligible"
+                          : "Error"}
                     </h2>
-                    <p className={`text-sm ${
-                      eligibilityResult.status === "approved" 
-                        ? "text-green-700" 
-                        : eligibilityResult.status === "rejected"
+                    <p className={`text-sm ${eligibilityResult.status === "approved"
+                      ? "text-green-700"
+                      : eligibilityResult.status === "rejected"
                         ? "text-red-700"
                         : "text-yellow-700"
-                    }`}>
+                      }`}>
                       {eligibilityResult.message}
                     </p>
                   </div>
@@ -381,12 +398,12 @@ export default function LoanForm() {
                         ))}
                       </ul>
                     </div>
-                    
+
                     {/* Show reapply after days */}
                     {eligibilityResult.reapply_after_days > 0 && (
                       <div className="mt-3 p-3 bg-orange-100 rounded-lg">
                         <p className="text-sm text-orange-800 flex items-center gap-2">
-                          <span className="font-semibold">⏰ Reapply after:</span> 
+                          <span className="font-semibold">⏰ Reapply after:</span>
                           <span className="bg-orange-200 px-2 py-0.5 rounded-full text-orange-800">
                             {eligibilityResult.reapply_after_days} days
                           </span>
@@ -401,7 +418,7 @@ export default function LoanForm() {
                   <div className="mt-4">
                     <div className="bg-red-100 p-4 rounded-lg">
                       <p className="text-sm text-red-800 font-medium">
-                           "reapply_after_days": 30,                      </p>
+                        "reapply_after_days": 30,                      </p>
                     </div>
                   </div>
                 )}
@@ -423,7 +440,7 @@ export default function LoanForm() {
                             </span>
                           </div>
                         </div>
-                        
+
                         <div className="p-3">
                           <div className="space-y-2">
                             {/* Amount */}
@@ -435,7 +452,7 @@ export default function LoanForm() {
                                 ₹{parseFloat(loan.min_amount).toLocaleString()} - ₹{parseFloat(loan.max_amount).toLocaleString()}
                               </span>
                             </div>
-                            
+
                             {/* Interest Rate */}
                             <div className="flex items-center gap-2 text-gray-700">
                               <div className="p-1.5 bg-gradient-to-r from-[#1e3a8a] to-[#2563eb] rounded-md">
@@ -443,7 +460,7 @@ export default function LoanForm() {
                               </div>
                               <span className="text-xs">{loan.interest_rate}%</span>
                             </div>
-                            
+
                             {/* Tenure */}
                             <div className="flex items-center gap-2 text-gray-700">
                               <div className="p-1.5 bg-gradient-to-r from-[#2563eb] to-[#3b82f6] rounded-md">
@@ -451,7 +468,7 @@ export default function LoanForm() {
                               </div>
                               <span className="text-xs">{loan.min_tenure} - {loan.max_tenure} months</span>
                             </div>
-                            
+
                             {/* Processing Fee */}
                             <div className="flex items-center gap-2 text-gray-700">
                               <div className="p-1.5 bg-gradient-to-r from-[#0f172a] to-[#1e3a8a] rounded-md">
@@ -459,7 +476,7 @@ export default function LoanForm() {
                               </div>
                               <span className="text-xs">Fee: ₹{parseFloat(loan.processing_fee).toLocaleString()}</span>
                             </div>
-                            
+
                             {/* Footer with ID and Apply Button - Matching reference exactly */}
                             <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                               <div className="flex items-center gap-1">
@@ -487,7 +504,7 @@ export default function LoanForm() {
                     <h3 className="text-lg font-semibold">Suggested Products for You</h3>
                     <p className="text-sm text-gray-600">Based on your profile, you might be eligible for these products:</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {eligibilityResult.suggested_products.map((product, index) => (
                       <div key={index} className="bg-white shadow-md rounded-lg overflow-hidden border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
@@ -502,7 +519,7 @@ export default function LoanForm() {
                             </span>
                           </div>
                         </div>
-                        
+
                         <div className="p-3">
                           <div className="space-y-2">
                             {/* Amount */}
@@ -512,14 +529,14 @@ export default function LoanForm() {
                                   <IndianRupee className="h-3 w-3 text-white" />
                                 </div>
                                 <span className="text-xs">
-                                  {product.min_amount && product.max_amount 
+                                  {product.min_amount && product.max_amount
                                     ? `₹${parseFloat(product.min_amount).toLocaleString()} - ₹${parseFloat(product.max_amount).toLocaleString()}`
                                     : `₹${parseFloat(product.amount || product.min_amount).toLocaleString()}`
                                   }
                                 </span>
                               </div>
                             )}
-                            
+
                             {/* Interest Rate */}
                             {product.interest_rate && (
                               <div className="flex items-center gap-2 text-gray-700">
@@ -529,7 +546,7 @@ export default function LoanForm() {
                                 <span className="text-xs">{product.interest_rate}%</span>
                               </div>
                             )}
-                            
+
                             {/* Tenure */}
                             {product.tenure && (
                               <div className="flex items-center gap-2 text-gray-700">
@@ -539,7 +556,7 @@ export default function LoanForm() {
                                 <span className="text-xs">{product.tenure} months</span>
                               </div>
                             )}
-                            
+
                             {/* Type */}
                             {product.type && (
                               <div className="flex items-center gap-2 text-gray-700">
@@ -549,14 +566,14 @@ export default function LoanForm() {
                                 <span className="text-xs">{product.type}</span>
                               </div>
                             )}
-                            
+
                             {/* Description */}
                             {product.description && (
                               <p className="text-xs text-gray-500 line-clamp-2 border-t border-gray-100 pt-2">
                                 {product.description}
                               </p>
                             )}
-                            
+
                             {/* Footer with Apply Button */}
                             <div className="flex items-center justify-end pt-2 border-t border-gray-100">
                               <Link href={`/my-applications/apply`}>
