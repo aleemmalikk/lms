@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getWithAuth } from "../../lib/api";
+import { getWithAuth } from "../lib/api";
 
 export default function LoanAccounts() {
 
