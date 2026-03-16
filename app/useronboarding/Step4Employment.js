@@ -49,26 +49,26 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
   // Validate field
   const validateField = (name, value) => {
     if (!value || value.trim() === "") return `${name} is required`;
-    
+
     if (name.toLowerCase().includes("income") || name.toLowerCase().includes("turnover")) {
       const num = Number(value);
       if (isNaN(num) || num <= 0) return "Please enter a valid amount";
     }
-    
+
     return "";
   };
 
   // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Format Aadhaar input
-    const formattedValue = name === "aadhaar" 
+    const formattedValue = name === "aadhaar"
       ? value.replace(/\D/g, "").slice(0, 12)
       : value;
-    
+
     setForm({ ...form, [name]: formattedValue });
-    
+
     // Clear error for this field
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
@@ -78,23 +78,23 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
   // Validate entire form
   const validateForm = () => {
     let newErrors = {};
-    
+
     // Validate employment type
     if (!form.employmentType) {
       newErrors.employmentType = "Please select employment type";
     }
-    
+
     // Validate employment fields
     const fields = getEmploymentFields();
     fields.forEach((field) => {
       const error = validateField(field.label, form[field.name] || "");
       if (error) newErrors[field.name] = error;
     });
-    
+
     // Validate Aadhaar
     const aadhaarError = validateAadhaar(form.aadhaar);
     if (aadhaarError) newErrors.aadhaar = aadhaarError;
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -102,7 +102,7 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
   // Submit profile
   const handleSubmit = async () => {
     setSubmitError("");
-    
+
     if (!validateForm()) {
       return;
     }
@@ -112,38 +112,46 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
     try {
       // Get token from localStorage if not passed as prop
       const token = authToken || localStorage.getItem("access_token");
-      
+
       if (!token) {
         throw new Error("Authentication token not found. Please login again.");
       }
 
       // Prepare payload according to API requirements
       const payload = {
-  first_name: form.name.split(" ")[0],
-  last_name: form.name.split(" ")[1] || "",
-  pan_number: form.pan,
-  aadhar_number: form.aadhaar,
-  date_of_birth: form.dob,
-  address: form.address,
-  city: form.city,
-  state: form.state,
-  pincode: form.pincode,
-  employment_type: form.employmentType
-};
+        first_name: form.name.split(" ")[0],
+        last_name: form.name.split(" ")[1] || "",
+        pan_number: form.pan,
+        aadhar_number: form.aadhaar,
+        date_of_birth: form.dob,
+        address: form.address,
+        city: form.city,
+        state: form.state,
+        pincode: form.pincode,
+        employment_type: form.employmentType
+      };
+      // Add employment-specific fields
       // Add employment-specific fields
       if (form.employmentType === "salaried") {
         payload.company_name = form.companyName;
         payload.monthly_income = form.monthlyIncome;
         payload.profession = form.profession;
+
       } else if (form.employmentType === "self") {
         payload.profession = form.profession;
         payload.annual_income = form.annualIncome;
         payload.business_name = form.businessName;
+
       } else if (form.employmentType === "business") {
         payload.business_name = form.businessName;
         payload.annual_turnover = form.annualTurnover;
         payload.company_name = form.companyName;
       }
+
+      // eligibility fields (ALL users)
+      payload.cibil_score = form.cibil
+      payload.loan_amount = form.loanAmount
+      payload.monthly_income = form.monthlyIncome
 
       console.log('Submitting payload:', payload);
 
@@ -167,12 +175,12 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
 
     } catch (error) {
       console.error('Profile update error:', error);
-      
+
       let errorMessage = "Profile update failed. Please try again.";
-      
+
       if (error.response) {
         console.log('Error response:', error.response.data);
-        
+
         // Handle different error formats
         if (error.response.data.message) {
           errorMessage = error.response.data.message;
@@ -183,7 +191,7 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
         } else if (typeof error.response.data === 'string') {
           errorMessage = error.response.data;
         }
-        
+
         // Handle field-specific errors
         if (error.response.data.errors) {
           setErrors(error.response.data.errors);
@@ -193,7 +201,7 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
       } else {
         errorMessage = error.message;
       }
-      
+
       setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -255,11 +263,10 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
                         setForm({ ...form, employmentType: type.value });
                         setErrors({ ...errors, employmentType: "" });
                       }}
-                      className={`p-4 border-2 rounded-lg text-center transition-all ${
-                        form.employmentType === type.value
-                          ? "border-indigo-600 bg-indigo-50 text-indigo-700"
-                          : "border-gray-200 hover:border-gray-300 text-gray-600"
-                      }`}
+                      className={`p-4 border-2 rounded-lg text-center transition-all ${form.employmentType === type.value
+                        ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                        : "border-gray-200 hover:border-gray-300 text-gray-600"
+                        }`}
                     >
                       <span className="text-2xl mb-2 block">{type.icon}</span>
                       <span className="text-sm font-medium">{type.label}</span>
@@ -283,9 +290,8 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
                     value={form[field.name] || ""}
                     onChange={handleChange}
                     placeholder={field.placeholder}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                      errors[field.name] ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${errors[field.name] ? "border-red-500" : "border-gray-300"
+                      }`}
                   />
                   {errors[field.name] && (
                     <p className="mt-1 text-sm text-red-600">{errors[field.name]}</p>
@@ -305,9 +311,8 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
                   onChange={handleChange}
                   placeholder="Enter 12-digit Aadhaar number"
                   maxLength="12"
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                    errors.aadhaar ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${errors.aadhaar ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.aadhaar && (
                   <p className="mt-1 text-sm text-red-600">{errors.aadhaar}</p>
@@ -315,6 +320,38 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
                 <p className="text-xs text-gray-500 mt-2">
                   Your Aadhaar details are encrypted and securely stored
                 </p>
+              </div>
+
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  CIBIL Score *
+                </label>
+
+                <input
+                  type="number"
+                  name="cibil"
+                  value={form.cibil || ""}
+                  onChange={handleChange}
+                  placeholder="Enter CIBIL Score (300-900)"
+                  className="w-full px-4 py-3 border rounded-lg"
+                />
+              </div>
+
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Loan Amount Required *
+                </label>
+
+                <input
+                  type="number"
+                  name="loanAmount"
+                  value={form.loanAmount || ""}
+                  onChange={handleChange}
+                  placeholder="Enter required loan amount"
+                  className="w-full px-4 py-3 border rounded-lg"
+                />
               </div>
 
               {/* Navigation Buttons */}
@@ -362,15 +399,15 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
             >
               <CheckCircleIcon className="w-20 h-20 text-green-600 mx-auto mb-6" />
             </motion.div>
-            
+
             <h2 className="text-3xl font-bold text-gray-800 mb-3">
               Onboarding Complete!
             </h2>
-            
+
             <p className="text-gray-600 mb-8">
               Your profile has been successfully created. Here's your Customer ID:
             </p>
-            
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -380,7 +417,7 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
               <p className="text-sm opacity-90 mb-2">Your Customer ID</p>
               <p className="text-4xl font-bold tracking-wider">{customerId}</p>
             </motion.div>
-            
+
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

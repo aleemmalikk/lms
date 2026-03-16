@@ -7,7 +7,7 @@ import { PhoneIcon, KeyIcon, XCircleIcon, CheckCircleIcon } from "@heroicons/rea
 
 export default function Step1Mobile({ form, setForm, next, setAuthToken }) {
   const [step, setStep] = useState("mobile");
-  const [mobile, setMobile] = useState("");
+  // const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(30);
@@ -39,7 +39,7 @@ export default function Step1Mobile({ form, setForm, next, setAuthToken }) {
 
   // Send OTP
   const handleSendOtp = async () => {
-    if (!validateMobile(mobile)) {
+    if (!validateMobile(form.mobile)) {
       setError("Please enter a valid 10-digit Indian mobile number");
       return;
     }
@@ -51,22 +51,24 @@ export default function Step1Mobile({ form, setForm, next, setAuthToken }) {
     try {
       const response = await axios.post(
         `${BASE_URL}signup-auth/send_signup_otp/`,
-        { mobile }
+        { mobile: form.mobile }
       );
 
-      // Update form with mobile number
-      setForm({ ...form, mobile });
-      
+      setForm(prev => ({
+        ...prev,
+        mobile: form.mobile
+      }));
+
       setStep("otp");
       setTimer(30);
       setCanResend(false);
       setSuccess("OTP sent successfully!");
-      
+
     } catch (err) {
-      const message = err.response?.data?.message || 
-                     err.response?.data?.error || 
-                     "Failed to send OTP";
-      
+      const message = err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Failed to send OTP";
+
       // Check if mobile is already registered
       if (message.toLowerCase().includes("already")) {
         setSuccess("Mobile number already registered. You can login directly.");
@@ -92,9 +94,9 @@ export default function Step1Mobile({ form, setForm, next, setAuthToken }) {
     try {
       await axios.post(
         `${BASE_URL}signup-auth/send_signup_otp/`,
-        { mobile }
+        { mobile: form.mobile }
       );
-      
+
       setTimer(30);
       setCanResend(false);
       setSuccess("OTP resent successfully!");
@@ -120,42 +122,42 @@ export default function Step1Mobile({ form, setForm, next, setAuthToken }) {
       const response = await axios.post(
         `${BASE_URL}signup-auth/verify_signup_otp/`,
         {
-          mobile,
+          mobile: form.mobile,
           otp
         }
       );
 
       const data = response.data;
-      
+
       // Save tokens to localStorage
       if (data.access) {
         localStorage.setItem("access_token", data.access);
         setAuthToken(data.access);
       }
-      
+
       if (data.refresh) {
         localStorage.setItem("refresh_token", data.refresh);
       }
-      
+
       if (data.username) {
         localStorage.setItem("username", data.username);
       }
-      
+
       if (data.role) {
         localStorage.setItem("role", data.role);
       }
 
       setSuccess("Verification successful! Redirecting...");
-      
+
       // Wait a moment then proceed to next step
       setTimeout(() => {
         next();
       }, 1500);
 
     } catch (err) {
-      const message = err.response?.data?.message || 
-                     err.response?.data?.error || 
-                     "Invalid OTP. Please try again.";
+      const message = err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Invalid OTP. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
@@ -189,9 +191,9 @@ export default function Step1Mobile({ form, setForm, next, setAuthToken }) {
           {step === "mobile" ? "Enter Mobile Number" : "Verify OTP"}
         </h2>
         <p className="text-gray-500 mt-2">
-          {step === "mobile" 
-            ? "We'll send you a verification code" 
-            : `Enter the 6-digit code sent to ${mobile}`
+          {step === "mobile"
+            ? "We'll send you a verification code"
+            : `Enter the 6-digit code sent to ${form.mobile}`
           }
         </p>
       </motion.div>
@@ -239,9 +241,12 @@ export default function Step1Mobile({ form, setForm, next, setAuthToken }) {
             </label>
             <input
               type="tel"
-              value={mobile}
+              value={form.mobile}
               onChange={(e) => {
-                setMobile(e.target.value.replace(/\D/g, "").slice(0, 10));
+                setForm(prev => ({
+                  ...prev,
+                  mobile: e.target.value.replace(/\D/g, "").slice(0, 10)
+                }));
                 setError("");
               }}
               placeholder="Enter 10-digit mobile number"
@@ -255,7 +260,7 @@ export default function Step1Mobile({ form, setForm, next, setAuthToken }) {
 
           <button
             onClick={handleSendOtp}
-            disabled={mobile.length !== 10 || loading}
+            disabled={form.mobile.length !== 10 || loading}
             className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
@@ -306,11 +311,10 @@ export default function Step1Mobile({ form, setForm, next, setAuthToken }) {
             <button
               onClick={handleResendOtp}
               disabled={!canResend || loading}
-              className={`font-medium ${
-                canResend && !loading
-                  ? "text-indigo-600 hover:text-indigo-800"
-                  : "text-gray-400 cursor-not-allowed"
-              }`}
+              className={`font-medium ${canResend && !loading
+                ? "text-indigo-600 hover:text-indigo-800"
+                : "text-gray-400 cursor-not-allowed"
+                }`}
             >
               Resend OTP
             </button>
