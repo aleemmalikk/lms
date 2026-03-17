@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getWithAuth } from "@/app/lib/api";
+import { getWithAuth, postWithAuth, putWithAuth } from "@/app/lib/api";
 
 import Step1Mobile from "./Step1Mobile";
 import Step2Personal from "./Step2Personal";
@@ -10,12 +10,24 @@ import Step3Address from "./Step3Address";
 import Step4Employment from "./Step4Employment";
 import { useSearchParams } from "next/navigation";
 
+// Employment type mapping based on Django choices
+const EMPLOYMENT_TYPE_MAPPING = {
+  'salaried': 'salaried',
+  'self_employed': 'self_employed',
+  'business': 'business',
+  'student': 'student',
+  'unemployed': 'unemployed',
+  'other': 'other'
+};
+
 export default function OnboardingForm() {
   const [loading, setLoading] = useState(true);
   const [showOnboard, setShowOnboard] = useState(false);
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(0);
   const [authToken, setAuthToken] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const searchParams = useSearchParams();
 
   const [form, setForm] = useState({
@@ -36,36 +48,27 @@ export default function OnboardingForm() {
     businessName: "",
     annualTurnover: "",
     aadhaar: "",
-
-    cibil: "",
-    loanAmount: ""
+    cibil_score: "",
+    loan_amount: ""
   });
 
-
   useEffect(() => {
-
     const mobileFromUrl = searchParams.get("mobile");
-
     if (mobileFromUrl) {
-
       setForm(prev => ({
         ...prev,
         mobile: mobileFromUrl
       }));
-
     }
-
   }, [searchParams]);
 
   // Check user authentication and onboarding status
   useEffect(() => {
     const checkUser = async () => {
       try {
-        // Get token from localStorage
         const token = localStorage.getItem("access_token");
 
         if (!token) {
-          // No token means new user - show onboarding
           setShowOnboard(true);
           setLoading(false);
           return;
@@ -73,25 +76,58 @@ export default function OnboardingForm() {
 
         setAuthToken(token);
 
-        // Check if user profile exists
+        // Check if user profile exists and get user ID
         const response = await getWithAuth("users/update_profile/");
+        
+        if (response && response.id) {
+          setUserId(response.id);
+          
+          // If profile exists, pre-fill form with existing data
+          if (response) {
+            setForm(prev => ({
+              ...prev,
+              cibil_score: response.cibil_score || "",
+              loan_amount: response.loan_amount || "",
+              name: response.first_name || "",
+              dob: response.date_of_birth || "",
+              pan: response.pan_number || "",
+              aadhaar: response.aadhar_number || "",
+              address: response.address || "",
+              city: response.city || "",
+              state: response.state || "",
+              pincode: response.pincode || "",
+              employmentType: response.employment_type || "",
+              monthlyIncome: response.monthly_income || "",
+              companyName: response.company_name || "",
+              profession: response.profession || "",
+              annualIncome: response.annual_income || "",
+              businessName: response.business_name || "",
+              annualTurnover: response.annual_turnover || "",
+            }));
+          }
+        }
 
-        // If we get here without error, user exists
-        // Check if profile is complete based on response
-        if (response && response.onboarded === true) {
-          setShowOnboard(false); // Already onboarded
-        } else {
-          setShowOnboard(true); // Need to complete onboarding
+        // Check onboarding status from my_hierarchy API
+        try {
+          const hierarchyResponse = await getWithAuth("user-hierarchy/my_hierarchy/");
+          
+          // If hierarchy exists and user is onboarded
+          if (hierarchyResponse && hierarchyResponse.onboarded === true) {
+            setShowOnboard(false); // Already onboarded
+          } else {
+            setShowOnboard(true); // Need to complete onboarding
+          }
+        } catch (hierarchyError) {
+          console.log('Hierarchy not found, user needs onboarding');
+          setShowOnboard(true);
         }
       } catch (error) {
         console.log('Error checking user:', error);
-
-        // Check if error is because profile doesn't exist
+        
         if (error.response?.status === 404 ||
           error.response?.data?.detail?.includes("not found")) {
-          setShowOnboard(true); // New user needs onboarding
+          setShowOnboard(true);
         } else {
-          // For other errors, still show onboarding
           setShowOnboard(true);
         }
       } finally {
@@ -110,6 +146,141 @@ export default function OnboardingForm() {
   const prev = () => {
     setDirection(-1);
     setStep((prev) => prev - 1);
+  };
+
+  // ✅ FIXED: Smart mapping for monthly_income based on employment type
+  const prepareDataForAPI = () => {
+    console.log("Form data before preparing:", form);
+
+    // Map employment type if needed
+    const mappedEmploymentType = EMPLOYMENT_TYPE_MAPPING[form.employmentType] || form.employmentType;
+
+    // Calculate monthly income smartly based on employment type
+    let calculatedMonthlyIncome = null;
+    
+    if (form.monthlyIncome) {
+      // Direct monthly income input (salaried)
+      calculatedMonthlyIncome = Number(form.monthlyIncome);
+    } else if (form.annualIncome) {
+      // Convert annual income to monthly (self-employed)
+      calculatedMonthlyIncome = Number(form.annualIncome) / 12;
+    } else if (form.annualTurnover) {
+      // Convert annual turnover to monthly (business)
+      calculatedMonthlyIncome = Number(form.annualTurnover) / 12;
+    }
+
+    // Round to 2 decimal places for cleaner numbers
+    if (calculatedMonthlyIncome) {
+      calculatedMonthlyIncome = Math.round(calculatedMonthlyIncome * 100) / 100;
+    }
+
+    return {
+      // Basic info - matching the API field names
+      first_name: form.name || "",
+      last_name: "", // You might want to add a last name field if needed
+      date_of_birth: form.dob || null,
+      pan_number: form.pan || null,
+      aadhar_number: form.aadhaar || null,
+      phone_number: form.mobile || null,
+      
+      // Address info
+      address: form.address || null,
+      city: form.city || null,
+      state: form.state || null,
+      pincode: form.pincode || null,
+      
+      // Employment info with smart monthly_income mapping
+      employment_type: mappedEmploymentType || null,
+      company_name: form.companyName || null,
+      monthly_income: calculatedMonthlyIncome, // ✅ Smart mapping applied here
+      profession: form.profession || null,
+      annual_income: form.annualIncome ? Number(form.annualIncome) : null,
+      business_name: form.businessName || null,
+      annual_turnover: form.annualTurnover ? Number(form.annualTurnover) : null,
+      
+      // CIBIL and Loan Amount - ensure these are sent as numbers
+      cibil_score: form.cibil_score ? Number(form.cibil_score) : null,
+      loan_amount: form.loan_amount ? Number(form.loan_amount) : null
+    };
+  };
+
+  // Submit final data to server
+  const submitOnboardingData = async () => {
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      
+      // Prepare data for API
+      const apiData = prepareDataForAPI();
+      
+      // Log the data being sent
+      console.log("Sending to update_profile:", JSON.stringify(apiData, null, 2));
+      
+      // First update user profile
+      const profileResponse = await putWithAuth("users/update_profile/", apiData);
+      console.log("Profile update response:", profileResponse);
+
+      // Check if all fields were updated in the response
+      if (profileResponse && profileResponse.user) {
+        console.log("Updated user data:", {
+          first_name: profileResponse.user.first_name,
+          date_of_birth: profileResponse.user.date_of_birth,
+          pan_number: profileResponse.user.pan_number,
+          aadhar_number: profileResponse.user.aadhar_number,
+          phone_number: profileResponse.user.phone_number,
+          address: profileResponse.user.address,
+          city: profileResponse.user.city,
+          state: profileResponse.user.state,
+          pincode: profileResponse.user.pincode,
+          employment_type: profileResponse.user.employment_type,
+          company_name: profileResponse.user.company_name,
+          monthly_income: profileResponse.user.monthly_income, // ✅ This will now have value for all employment types
+          profession: profileResponse.user.profession,
+          annual_income: profileResponse.user.annual_income,
+          business_name: profileResponse.user.business_name,
+          annual_turnover: profileResponse.user.annual_turnover,
+          cibil_score: profileResponse.user.cibil_score,
+          loan_amount: profileResponse.user.loan_amount
+        });
+      }
+
+      // Also update hierarchy if needed
+      try {
+        const hierarchyData = {
+          ...apiData,
+          onboarded: true
+        };
+        
+        console.log("Sending to my_hierarchy:", JSON.stringify(hierarchyData, null, 2));
+        
+        // Try POST first
+        await postWithAuth("user-hierarchy/my_hierarchy/", hierarchyData).catch(async (postError) => {
+          console.log("POST failed, trying PUT:", postError);
+          // If POST fails, try PUT
+          await putWithAuth("user-hierarchy/my_hierarchy/", hierarchyData);
+        });
+      } catch (hierarchyError) {
+        console.log("Hierarchy update error (non-critical):", hierarchyError);
+        // Don't throw here - profile update is more important
+      }
+
+      // Show success and redirect
+      alert("Onboarding completed successfully!");
+      window.location.href = "/dashboard";
+      
+    } catch (error) {
+      console.error("Error submitting onboarding data:", error);
+      
+      // Show more detailed error message
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        alert(`Failed to submit data: ${JSON.stringify(error.response.data)}`);
+      } else {
+        alert("Failed to submit data. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const steps = [
@@ -249,6 +420,7 @@ export default function OnboardingForm() {
                   setForm={setForm}
                   next={next}
                   setAuthToken={setAuthToken}
+                  setUserId={setUserId}
                 />
               )}
 
@@ -276,6 +448,8 @@ export default function OnboardingForm() {
                   setForm={setForm}
                   prev={prev}
                   authToken={authToken}
+                  onSubmit={submitOnboardingData}
+                  isSubmitting={isSubmitting}
                 />
               )}
             </motion.div>
