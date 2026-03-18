@@ -127,22 +127,14 @@ export default function Sidebar({
 
   const adminMenu = [
     ...baseMenu,
-     { label: "View List", path: "/lons/apply/aplicantlist", icon: <FaList /> },
-    { label: "Category", path: "/loan/category", icon: <FaUserShield /> },
-    // { label: "Add Bank", path: "/addbank", icon: <FaUniversity /> },
-    // { label: "Add Commission", path: "/add-commission", icon: <FaPlusCircle /> },
-    // { label: "Commission", path: "/commission", icon: <FaChartBar /> },
-    // { label: "Assign Scheme", path: "/assignscheme", icon: <FaUserPlus /> },
-    // { label: "Fund Requests", path: "/fundrequests", icon: <FaHandHoldingUsd /> },
-    // { label: "Service Management", path: "/adminpannel", icon: <FaCogs /> },
-    // { label: "Sign Up Request", path: "/signuprequest", icon: <FaUsers /> },
-    // { label: "Refunds", path: "/refunds", icon: <FaUndoAlt /> },
-    // { label: "Reports", path: "/reports", icon: <FaRegFileAlt /> },
-    // { label: "Admin Helpdesk", path: "/adminhelpdesk", icon: <FaHeadset /> },
-    // { label: "Check Status", path: "/status", icon: <FaChartLine /> },
+     { label: "Aplications Lists", path: "/my-applications/apply/aplicantlist", icon: <FaList /> },
+    { label: "Lons Category", path: "/loan/category", icon: <FaUserShield /> },
     { label: "Loan Products", path: "/loanproducts", icon: <FaInfoCircle /> },
     { label: "Users Onboarding", path: "/usersonboarding", icon: <FaUserShield /> },
     { label: "Loan Eligibility", path: "/loan-eligibility", icon: <FaUsers /> },
+    { label: "Risk Review", path: "/risk-review", icon: <FaUsers /> },
+    { label: "Disbursement", path: "/disbursement", icon: <FaUsers /> },
+    { label: "Collection", path: "/collection", icon: <FaUsers /> },
   ];
 
 
