@@ -342,7 +342,7 @@ export default function Dashboard() {
           </div>
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
-            <p>&copy; 2024 FinLoan. All rights reserved. | RBI Registered NBFC</p>
+            <p>&copy; 2026 FinLoan. All rights reserved. | RBI Registered NBFC</p>
           </div>
         </div>
       </footer>

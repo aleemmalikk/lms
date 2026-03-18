@@ -193,12 +193,11 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
   }, []);
 
   const handleLogout = () => {
-    localStorage.clear();
-    setIsLoggedIn(false);
-    setUserProfile(null);
-    window.location.href = "/login";
-  };
-
+  localStorage.clear();
+  setIsLoggedIn(false);
+  setUserProfile(null);
+  router.push("/"); // 👈 homepage redirect
+};
   // Get user display name
   const getDisplayName = () => {
     if (!userProfile) return "User";

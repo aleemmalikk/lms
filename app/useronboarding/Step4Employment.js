@@ -18,22 +18,25 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
     switch (form.employmentType) {
       case "salaried":
         return [
-          { name: "companyName", label: "Company Name", type: "text", placeholder: "Enter your company name" },
-          { name: "monthlyIncome", label: "Monthly Income (₹)", type: "number", placeholder: "Enter monthly income" },
-          { name: "profession", label: "Profession/Designation", type: "text", placeholder: "Enter your profession" }
+          { name: "companyName", label: "Company Name", type: "text" },
+          { name: "monthlyIncome", label: "Monthly Income (₹)", type: "number" },
+          { name: "profession", label: "Profession", type: "text" }
         ];
-      case "self":
+
+      case "self_employed":
         return [
-          { name: "profession", label: "Profession", type: "text", placeholder: "Enter your profession" },
-          { name: "annualIncome", label: "Annual Income (₹)", type: "number", placeholder: "Enter annual income" },
-          { name: "businessName", label: "Business Name", type: "text", placeholder: "Enter business name" }
+          { name: "profession", label: "Profession", type: "text" },
+          { name: "annualIncome", label: "Annual Income (₹)", type: "number" },
+          { name: "businessName", label: "Business Name", type: "text" }
         ];
+
       case "business":
         return [
-          { name: "businessName", label: "Business Name", type: "text", placeholder: "Enter business name" },
-          { name: "annualTurnover", label: "Annual Turnover (₹)", type: "number", placeholder: "Enter annual turnover" },
-          { name: "companyName", label: "Company Registration Name", type: "text", placeholder: "Enter company name" }
+          { name: "businessName", label: "Business Name", type: "text" },
+          { name: "annualTurnover", label: "Annual Turnover (₹)", type: "number" },
+          { name: "companyName", label: "Company Name", type: "text" }
         ];
+
       default:
         return [];
     }
@@ -130,14 +133,14 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
         pincode: form.pincode,
         employment_type: form.employmentType
       };
-      // Add employment-specific fields
-      // Add employment-specific fields
+
+      // ✅ FIX 1: Remove extra bracket and fix employment fields
       if (form.employmentType === "salaried") {
         payload.company_name = form.companyName;
         payload.monthly_income = form.monthlyIncome;
         payload.profession = form.profession;
 
-      } else if (form.employmentType === "self") {
+      } else if (form.employmentType === "self_employed") {
         payload.profession = form.profession;
         payload.annual_income = form.annualIncome;
         payload.business_name = form.businessName;
@@ -148,10 +151,12 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
         payload.company_name = form.companyName;
       }
 
-      // eligibility fields (ALL users)
-      payload.cibil_score = form.cibil
-      payload.loan_amount = form.loanAmount
-      payload.monthly_income = form.monthlyIncome
+      // ✅ FIX 2: Correct variable names for CIBIL and loan amount
+      payload.cibil_score = form.cibil_score;
+      payload.loan_amount = form.loan_amount;
+
+      // ✅ FIX 3: Remove duplicate monthly_income (already added in salaried section)
+      // payload.monthly_income = form.monthlyIncome;  // REMOVED
 
       console.log('Submitting payload:', payload);
 
@@ -210,8 +215,11 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
 
   const employmentTypes = [
     { value: "salaried", label: "Salaried Employee", icon: "💼" },
-    { value: "self", label: "Self Employed", icon: "👔" },
-    { value: "business", label: "Business Owner", icon: "🏢" }
+    { value: "self_employed", label: "Self Employed", icon: "👔" },
+    { value: "business", label: "Business Owner", icon: "🏢" },
+    { value: "student", label: "Student", icon: "🎓" },
+    { value: "unemployed", label: "Unemployed", icon: "📌" },
+    { value: "other", label: "Other", icon: "🔧" }
   ];
 
   const fields = getEmploymentFields();
@@ -254,28 +262,19 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Employment Type *
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {employmentTypes.map((type) => (
-                    <button
-                      key={type.value}
-                      type="button"
-                      onClick={() => {
-                        setForm({ ...form, employmentType: type.value });
-                        setErrors({ ...errors, employmentType: "" });
-                      }}
-                      className={`p-4 border-2 rounded-lg text-center transition-all ${form.employmentType === type.value
-                        ? "border-indigo-600 bg-indigo-50 text-indigo-700"
-                        : "border-gray-200 hover:border-gray-300 text-gray-600"
-                        }`}
-                    >
-                      <span className="text-2xl mb-2 block">{type.icon}</span>
-                      <span className="text-sm font-medium">{type.label}</span>
-                    </button>
-                  ))}
-                </div>
-                {errors.employmentType && (
-                  <p className="mt-1 text-sm text-red-600">{errors.employmentType}</p>
-                )}
+                <select
+                  value={form.employmentType}
+                  onChange={(e) => setForm({ ...form, employmentType: e.target.value })}
+                  className="w-full border rounded-lg p-3"
+                >
+                  <option value="">Select Employment</option>
+                  <option value="salaried">Salaried</option>
+                  <option value="self_employed">Self Employed</option>
+                  <option value="business">Business Owner</option>
+                  <option value="student">Student</option>
+                  <option value="unemployed">Unemployed</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
 
               {/* Dynamic Employment Fields */}
@@ -322,35 +321,36 @@ export default function Step4Employment({ form, setForm, prev, authToken }) {
                 </p>
               </div>
 
-
+              {/* CIBIL Score Field */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  CIBIL Score *
+                  CIBIL Score
                 </label>
-
                 <input
                   type="number"
-                  name="cibil"
-                  value={form.cibil || ""}
+                  name="cibil_score"
+                  value={form.cibil_score || ""}
                   onChange={handleChange}
-                  placeholder="Enter CIBIL Score (300-900)"
-                  className="w-full px-4 py-3 border rounded-lg"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="Enter CIBIL score"
+                  min="300"
+                  max="900"
                 />
               </div>
 
-
+              {/* Loan Amount Field */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Loan Amount Required *
+                  Loan Amount (₹)
                 </label>
-
                 <input
                   type="number"
-                  name="loanAmount"
-                  value={form.loanAmount || ""}
+                  name="loan_amount"
+                  value={form.loan_amount || ""}
                   onChange={handleChange}
-                  placeholder="Enter required loan amount"
-                  className="w-full px-4 py-3 border rounded-lg"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="Enter loan amount"
+                  min="0"
                 />
               </div>
 
