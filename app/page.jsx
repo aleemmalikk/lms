@@ -26,6 +26,8 @@ export default function Dashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [profileData, setProfileData] = useState({});
 
   useEffect(() => {
     const fetchLoanProducts = async () => {
@@ -50,6 +52,11 @@ export default function Dashboard() {
     };
     fetchLoanProducts();
   }, [loggedIn]);
+
+
+  useEffect(() => {
+    checkProfile();
+  }, []);
 
   const filterOptions = [
     { id: "all", label: "All Loans", icon: <Briefcase size={16} /> },
@@ -77,6 +84,60 @@ export default function Dashboard() {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
+
+
+
+  const checkProfile = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+
+      const res = await axios.get(`${BASE_URL}users/my_profile/`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const user = res.data;
+
+      setProfileData(user);
+
+      // 🔥 MAIN LOGIC
+      if (!user.pan_number || !user.monthly_income) {
+        setShowProfilePopup(true);
+      }
+
+    } catch (err) {
+      console.log("Profile fetch error", err);
+    }
+  };
+
+
+
+  const updateProfile = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+
+      await axios.patch(
+        `${BASE_URL}users/update_profile/`,
+        {
+          pan_number: profileData.pan_number,
+          monthly_income: profileData.monthly_income
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      alert("✅ Profile Updated");
+
+      setShowProfilePopup(false);
+
+    } catch (err) {
+      alert("Failed to update profile");
+    }
+  };
 
   return (
     <div className=" bg-gray-400 transition-colors duration-300">
@@ -375,6 +436,42 @@ export default function Dashboard() {
             ))}
           </div>
 
+          {showProfilePopup && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-xl">
+
+                <h2 className="text-xl font-bold mb-4 text-center">
+                  Complete Your Profile ⚡
+                </h2>
+
+                <input
+                  placeholder="PAN Number"
+                  value={profileData.pan_number || ""}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, pan_number: e.target.value })
+                  }
+                  className="w-full border p-3 rounded-xl mb-3"
+                />
+
+                <input
+                  placeholder="Monthly Income"
+                  value={profileData.monthly_income || ""}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, monthly_income: e.target.value })
+                  }
+                  className="w-full border p-3 rounded-xl mb-4"
+                />
+
+                <button
+                  onClick={updateProfile}
+                  className="w-full bg-indigo-600 text-white py-2 rounded-xl"
+                >
+                  Update Profile
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
             <p>&copy; 2026 FinLoan. All rights reserved. | RBI Registered NBFC</p>
           </div>
@@ -415,6 +512,7 @@ export default function Dashboard() {
       `}</style>
     </div>
   );
+
 }
 
 // Enhanced Product Card Component

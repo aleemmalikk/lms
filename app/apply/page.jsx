@@ -42,7 +42,6 @@ export default function OnboardingForm() {
     }
   }, [emailTimer]);
 
-  // INPUT
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -59,70 +58,111 @@ export default function OnboardingForm() {
     setForm((p) => ({ ...p, [name]: v }));
   };
 
-  // 📱 SEND OTP
   const sendMobileOtp = async () => {
-    await axios.post(`${BASE_URL}signup-auth/send_signup_otp/`, {
-      mobile: form.mobile
-    });
+    try {
+      await axios.post(`${BASE_URL}signup-auth/send_signup_otp/`, {
+        mobile: form.mobile
+      });
+
+      setMobileStep("otp");
+      setMobileTimer(30);
+
+    } catch (err) {
+      alert(err?.response?.data?.error || "OTP send failed");
+    }
 
     setMobileStep("otp");
-    setMobileTimer(30); // 🔥 start timer
+    setMobileTimer(30);
   };
 
-  // 🔁 RESEND MOBILE OTP
   const resendMobileOtp = async () => {
     if (mobileTimer > 0) return;
 
     await sendMobileOtp();
   };
 
-  // VERIFY MOBILE
   const verifyMobileOtp = async () => {
-    const res = await axios.post(
-      `${BASE_URL}signup-auth/verify_signup_otp/`,
-      {
-        mobile: form.mobile,
-        otp: form.mobileOtp
-      }
-    );
+    try {
+      const res = await axios.post(
+        `${BASE_URL}signup-auth/verify_signup_otp/`,
+        {
+          mobile: form.mobile,
+          otp: form.mobileOtp
+        }
+      );
 
-    if (res.data.access) {
-      localStorage.setItem("access_token", res.data.access);
+      localStorage.setItem("temp_user_id", res.data.user_id);
+
+      setMobileVerified(true);
+      setTimeout(() => setStep(3), 500);
+
+    } catch (err) {
+      alert(err?.response?.data?.error || "Invalid OTP");
     }
-
-    setMobileVerified(true);
   };
 
-  // 📧 SEND EMAIL OTP
   const sendEmailOtp = async () => {
-    await axios.post(`${BASE_URL}send-email-otp/`, {
-      email: form.email
-    });
+    try {
+      const user_id = localStorage.getItem("temp_user_id");
 
-    setEmailStep("otp");
-    setEmailTimer(30);
+      await axios.post(`${BASE_URL}signup-auth/send_signup_email_otp/`, {
+        email: form.email,
+        user_id
+      });
+
+      setEmailStep("otp");
+      setEmailTimer(30);
+
+    } catch (err) {
+      alert(err?.response?.data?.error || "Failed to send OTP");
+    }
   };
 
-  // 🔁 RESEND EMAIL OTP
   const resendEmailOtp = async () => {
     if (emailTimer > 0) return;
 
-    await sendEmailOtp();
-  };
+    try {
+      const user_id = localStorage.getItem("temp_user_id");
 
-  // VERIFY EMAIL
-  const verifyEmailOtp = async () => {
-    const res = await axios.post(`${BASE_URL}verify-email-otp/`, {
-      email: form.email,
-      otp: form.emailOtp
-    });
+      await axios.post(`${BASE_URL}signup-auth/resend_signup_email_otp/`, {
+        user_id
+      });
 
-    if (res.data.success) {
-      setEmailVerified(true);
+      setEmailTimer(30);
+
+    } catch (err) {
+      alert("Failed to resend OTP");
     }
   };
 
-  // FINAL
+  const verifyEmailOtp = async () => {
+    try {
+      const user_id = localStorage.getItem("temp_user_id");
+
+      const res = await axios.post(
+        `${BASE_URL}signup-auth/verify_signup_email_otp/`,
+        {
+          email: form.email,
+          otp: form.emailOtp,
+          user_id
+        }
+      );
+
+      localStorage.setItem("access_token", res.data.access);
+
+      setEmailVerified(true);
+
+      setTimeout(() => {
+        completeProfile();
+      }, 500);
+
+      alert("🎉 Signup Complete & Logged In!");
+
+    } catch (err) {
+      alert(err?.response?.data?.error || "Invalid OTP");
+    }
+  };
+
   const completeProfile = async () => {
     setLoading(true);
 

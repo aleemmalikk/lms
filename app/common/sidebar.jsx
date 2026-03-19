@@ -118,7 +118,6 @@ export default function Sidebar({
     }
   })();
 
-  /* ---------------------- Base Menu ---------------------- */
 
   const baseMenu = [
     { label: "Home", path: dashboardRoute, icon: <FaHome /> },
@@ -127,10 +126,10 @@ export default function Sidebar({
 
   const adminMenu = [
     ...baseMenu,
+    { label: "Users Onboarding", path: "/usersonboarding", icon: <FaUserShield /> },
      { label: "Aplications Lists", path: "/my-applications/apply/aplicantlist", icon: <FaList /> },
     { label: "Lons Category", path: "/loan/category", icon: <FaUserShield /> },
     { label: "Loan Products", path: "/loanproducts", icon: <FaInfoCircle /> },
-    { label: "Users Onboarding", path: "/usersonboarding", icon: <FaUserShield /> },
     { label: "Loan Eligibility", path: "/loan-eligibility", icon: <FaUsers /> },
     { label: "Risk Review", path: "/risk-review", icon: <FaUsers /> },
     { label: "Disbursement", path: "/disbursement", icon: <FaUsers /> },
