@@ -74,7 +74,7 @@ export default function MobileOtpLogin() {
         localStorage.setItem("user_mobile", response.mobile || mobile);
 
         if (response.needs_pin_setup || !response.is_pin_set) {
-          router.push("/home");
+          router.push("/");
         } else {
           const userRole = response.role;
           if (userRole === 'admin' || userRole === 'superadmin') {
