@@ -51,7 +51,6 @@ export default function Dashboard() {
     fetchLoanProducts();
   }, [loggedIn]);
 
-  // Enhanced filter options with icons
   const filterOptions = [
     { id: "all", label: "All Loans", icon: <Briefcase size={16} /> },
     { id: "Personal Loan", label: "Personal", icon: <User size={16} /> },
@@ -62,7 +61,6 @@ export default function Dashboard() {
     { id: "Gold Loan", label: "Gold", icon: <Gem size={16} /> },
   ];
 
-  // Search and filter logic
   const filtered = loanProducts.filter(loan => {
     const matchesFilter = filter === "All" || loan.loan_type === filter || loan.name?.includes(filter);
     const matchesSearch = searchQuery === "" ||
@@ -72,7 +70,6 @@ export default function Dashboard() {
     return matchesFilter && matchesSearch;
   });
 
-  // Toggle dark mode
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
@@ -82,13 +79,12 @@ export default function Dashboard() {
   }, [darkMode]);
 
   return (
-    <div className=" bg-gray-50 dark:bg-gray-900 transition-colors duration-300">      
-      {/* Hero Section */}
+    <div className=" bg-gray-400 transition-colors duration-300">
       <section className="relative flex items-center px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-r from-gray-50 via-blue-50 to-gray-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-gray-900 bg-[length:200%_200%] animate-gradient">
         <div className="absolute w-[600px] h-[600px] rounded-full bg-gradient-to-r from-blue-500/10 to-transparent -top-48 -right-24 animate-float" />
         <div className="absolute w-[400px] h-[400px] rounded-full bg-gradient-to-r from-purple-500/10 to-transparent -bottom-24 -left-24 animate-float-delayed" />
 
-        <div className="relative z-10 max-w-3xl animate-fadeInUp">
+        <div className="relative z-10 max-w-3xl animate-fadeInUp md:mt-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-600 dark:text-blue-400 text-sm font-semibold backdrop-blur-md mb-8">
             <Sparkles size={16} />
             <span>RBI Registered | 100% Secure</span>
@@ -154,20 +150,52 @@ export default function Dashboard() {
       </section>
 
       {/* Search Section */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-16">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-5">
         <div className="relative">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+
+          {/* Icon */}
+          <Search
+            className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500"
+            size={20}
+          />
+
+          {/* Input */}
           <input
             type="text"
-            className="w-full pl-14 pr-36 py-1 rounded-full border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-lg focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all"
-            placeholder="Search for loans by name, type, or features..."
+            className="
+        w-full pl-14 pr-36 py-2
+        rounded-full
+        border-2 border-gray-300
+        bg-white text-gray-900
+        text-lg
+        focus:outline-none
+        focus:border-blue-500
+        focus:ring-4 focus:ring-blue-500/20
+        shadow-sm
+        transition-all
+      "
+            placeholder="Search for operators..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600 transition-all inline-flex items-center gap-2">
+
+          {/* Button */}
+          <button
+            className="
+        absolute right-2 top-1/2 -translate-y-1/2
+        px-5 py-2
+        bg-blue-500 text-white
+        font-semibold rounded-full
+        hover:bg-blue-600
+        shadow-md
+        transition-all
+        flex items-center gap-2
+      "
+          >
             <Filter size={16} />
             <span>Filter</span>
           </button>
+
         </div>
       </div>
 
@@ -177,14 +205,20 @@ export default function Dashboard() {
           {filterOptions.map((option) => (
             <button
               key={option.id}
-              className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border-2 font-semibold text-sm transition-all hover:-translate-y-0.5 ${filter === option.id
-                  ? 'bg-blue-500 border-blue-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400'
-                }`}
               onClick={() => {
                 setFilter(option.id);
                 setActiveCategory(option.id);
               }}
+              className={`
+          inline-flex items-center gap-2 px-5 py-2 rounded-full
+          border font-semibold text-sm
+          transition-all hover:-translate-y-0.5
+
+          ${filter === option.id
+                  ? "bg-blue-500 border-blue-500 text-white"
+                  : "bg-white border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600"
+                }
+        `}
             >
               {option.icon}
               <span>{option.label}</span>
@@ -194,12 +228,12 @@ export default function Dashboard() {
       </div>
 
       {/* Products Section */}
-      <section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
             Featured Loan Products
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-blue-600 dark:text-blue-800 max-w-2xl mx-auto">
             Choose from our wide range of loan products designed to meet your specific needs
           </p>
         </div>
