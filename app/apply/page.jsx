@@ -215,6 +215,11 @@ export default function OnboardingForm() {
       );
 
       localStorage.setItem("access_token", res.data.access);
+      
+      // Agar response mein refresh token bhi aata hai to use bhi save karo
+      if (res.data.refresh) {
+        localStorage.setItem("refresh_token", res.data.refresh);
+      }
 
       setEmailVerified(true);
 
@@ -248,6 +253,39 @@ export default function OnboardingForm() {
         },
       );
 
+      // 🔥 IMPORTANT: Save user role in localStorage
+      // Check different possible paths for role in response
+      let userRole = 'user'; // default role
+      
+      if (response.data.role) {
+        userRole = response.data.role;
+      } else if (response.data.user && response.data.user.role) {
+        userRole = response.data.user.role;
+      } else if (response.data.user_role) {
+        userRole = response.data.user_role;
+      } else if (response.data.data && response.data.data.role) {
+        userRole = response.data.data.role;
+      }
+      
+      // Save role to localStorage
+      localStorage.setItem("user_role", userRole);
+
+      window.dispatchEvent(new Event("userLoggedIn"));
+      
+      // Optional: Save full user data
+      localStorage.setItem("user_data", JSON.stringify(response.data));
+      
+      // Save user ID if available
+      if (response.data.id) {
+        localStorage.setItem("user_id", response.data.id);
+      } else if (response.data.user && response.data.user.id) {
+        localStorage.setItem("user_id", response.data.user.id);
+      }
+
+      // Log for debugging (remove in production)
+      console.log("User Role Saved:", userRole);
+      console.log("Full Response:", response.data);
+
       showPopup(
         response.data.message ||
           response.data.detail ||
@@ -257,7 +295,14 @@ export default function OnboardingForm() {
 
       // Redirect to dashboard after successful profile completion
       setTimeout(() => {
-        router.push('/');
+        // Role-based redirection
+        if (userRole === 'admin') {
+          router.push('/admin/dashboard');
+        } else if (userRole === 'vendor' || userRole === 'seller') {
+          router.push('/vendor/dashboard');
+        } else {
+          router.push('/'); // or '/dashboard' for regular users
+        }
       }, 2000);
 
     } catch (error) {
