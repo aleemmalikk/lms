@@ -29,9 +29,6 @@ export default function Dashboard() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [profileData, setProfileData] = useState({});
-<<<<<<< HEAD
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-=======
   const [isPopupOpen, setIsPopupOpen] = useState(true);
   
   const closePopup = () => {
@@ -46,7 +43,6 @@ const getLoanIcon = (type) => ({
   "Vehicle Loan": <Car size={24} />,
   "Gold Loan": <Gem size={24} />,
 }[type] || <Briefcase size={24} />);
->>>>>>> master
 
   useEffect(() => {
     const fetchLoanProducts = async () => {
