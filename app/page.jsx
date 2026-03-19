@@ -26,8 +26,8 @@ export default function Dashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
-  // Popup state - initially open
-  const [isPopupOpen, setIsPopupOpen] = useState(true);
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [profileData, setProfileData] = useState({});
 
   useEffect(() => {
     const fetchLoanProducts = async () => {
@@ -52,6 +52,11 @@ export default function Dashboard() {
     };
     fetchLoanProducts();
   }, [loggedIn]);
+
+
+  useEffect(() => {
+    checkProfile();
+  }, []);
 
   const filterOptions = [
     { id: "all", label: "All Loans", icon: <Briefcase size={16} /> },
@@ -80,32 +85,57 @@ export default function Dashboard() {
     }
   }, [darkMode]);
 
-  // Handle body scroll when popup is open
-  useEffect(() => {
-    if (isPopupOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isPopupOpen]);
 
-  const closePopup = () => {
-    setIsPopupOpen(false);
+
+  const checkProfile = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+
+      const res = await axios.get(`${BASE_URL}users/my_profile/`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const user = res.data;
+
+      setProfileData(user);
+
+      // 🔥 MAIN LOGIC
+      if (!user.pan_number || !user.monthly_income) {
+        setShowProfilePopup(true);
+      }
+
+    } catch (err) {
+      console.log("Profile fetch error", err);
+    }
   };
 
-  // Get icon based on loan type
-  const getLoanIcon = (loanType) => {
-    switch(loanType) {
-      case 'Personal Loan': return <User size={24} />;
-      case 'Business Loan': return <TrendingUp size={24} />;
-      case 'Home Loan': return <Home size={24} />;
-      case 'Education Loan': return <GraduationIcon size={24} />;
-      case 'Vehicle Loan': return <Car size={24} />;
-      case 'Gold Loan': return <Gem size={24} />;
-      default: return <Briefcase size={24} />;
+
+
+  const updateProfile = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+
+      await axios.patch(
+        `${BASE_URL}users/update_profile/`,
+        {
+          pan_number: profileData.pan_number,
+          monthly_income: profileData.monthly_income
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      alert("✅ Profile Updated");
+
+      setShowProfilePopup(false);
+
+    } catch (err) {
+      alert("Failed to update profile");
     }
   };
 
@@ -399,6 +429,42 @@ export default function Dashboard() {
             ))}
           </div>
 
+          {showProfilePopup && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-xl">
+
+                <h2 className="text-xl font-bold mb-4 text-center">
+                  Complete Your Profile ⚡
+                </h2>
+
+                <input
+                  placeholder="PAN Number"
+                  value={profileData.pan_number || ""}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, pan_number: e.target.value })
+                  }
+                  className="w-full border p-3 rounded-xl mb-3"
+                />
+
+                <input
+                  placeholder="Monthly Income"
+                  value={profileData.monthly_income || ""}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, monthly_income: e.target.value })
+                  }
+                  className="w-full border p-3 rounded-xl mb-4"
+                />
+
+                <button
+                  onClick={updateProfile}
+                  className="w-full bg-indigo-600 text-white py-2 rounded-xl"
+                >
+                  Update Profile
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
             <p>&copy; 2026 FinLoan. All rights reserved. | RBI Registered NBFC</p>
           </div>
@@ -576,6 +642,7 @@ className="relative bg-white/85 backdrop-blur-xl rounded-3xl max-w-6xl w-full ma
       `}</style>
     </div>
   );
+
 }
 
 // Enhanced Product Card Component
