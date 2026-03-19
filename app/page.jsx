@@ -26,6 +26,8 @@ export default function Dashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
+  // Popup state - initially open
+  const [isPopupOpen, setIsPopupOpen] = useState(true);
 
   useEffect(() => {
     const fetchLoanProducts = async () => {
@@ -78,8 +80,38 @@ export default function Dashboard() {
     }
   }, [darkMode]);
 
+  // Handle body scroll when popup is open
+  useEffect(() => {
+    if (isPopupOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isPopupOpen]);
+
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
+
+  // Get icon based on loan type
+  const getLoanIcon = (loanType) => {
+    switch(loanType) {
+      case 'Personal Loan': return <User size={24} />;
+      case 'Business Loan': return <TrendingUp size={24} />;
+      case 'Home Loan': return <Home size={24} />;
+      case 'Education Loan': return <GraduationIcon size={24} />;
+      case 'Vehicle Loan': return <Car size={24} />;
+      case 'Gold Loan': return <Gem size={24} />;
+      default: return <Briefcase size={24} />;
+    }
+  };
+
   return (
-    <div className=" bg-gray-400 transition-colors duration-300">
+    <div className="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      {/* Hero Section */}
       <section className="relative flex items-center px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-r from-gray-50 via-blue-50 to-gray-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-gray-900 bg-[length:200%_200%] animate-gradient">
         <div className="absolute w-[600px] h-[600px] rounded-full bg-gradient-to-r from-blue-500/10 to-transparent -top-48 -right-24 animate-float" />
         <div className="absolute w-[400px] h-[400px] rounded-full bg-gradient-to-r from-purple-500/10 to-transparent -bottom-24 -left-24 animate-float-delayed" />
@@ -128,7 +160,7 @@ export default function Dashboard() {
         </div>
 
         {/* Floating Cards */}
-        <div className="hidden lg:block absolute right-[5%] top-1/1 -translate-y-1/2 space-y-4 animate-float">
+        <div className="hidden lg:block absolute right-[5%] top-1/2 -translate-y-1/2 space-y-4 animate-float">
           {[
             { icon: <Zap size={24} />, title: 'Instant Approval', value: 'Under 10 minutes' },
             { icon: <Percent size={24} />, title: 'Interest Rates', value: 'Starting at 7.5%', offset: 'ml-8' },
@@ -152,50 +184,43 @@ export default function Dashboard() {
       {/* Search Section */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-5">
         <div className="relative">
-
-          {/* Icon */}
           <Search
             className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500"
             size={20}
           />
-
-          {/* Input */}
           <input
             type="text"
             className="
-        w-full pl-14 pr-36 py-2
-        rounded-full
-        border-2 border-gray-300
-        bg-white text-gray-900
-        text-lg
-        focus:outline-none
-        focus:border-blue-500
-        focus:ring-4 focus:ring-blue-500/20
-        shadow-sm
-        transition-all
-      "
-            placeholder="Search for operators..."
+              w-full pl-14 pr-36 py-2
+              rounded-full
+              border-2 border-gray-300
+              bg-white text-gray-900
+              text-lg
+              focus:outline-none
+              focus:border-blue-500
+              focus:ring-4 focus:ring-blue-500/20
+              shadow-sm
+              transition-all
+            "
+            placeholder="Search for loans..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-
-          {/* Button */}
           <button
             className="
-        absolute right-2 top-1/2 -translate-y-1/2
-        px-5 py-2
-        bg-blue-500 text-white
-        font-semibold rounded-full
-        hover:bg-blue-600
-        shadow-md
-        transition-all
-        flex items-center gap-2
-      "
+              absolute right-2 top-1/2 -translate-y-1/2
+              px-5 py-2
+              bg-blue-500 text-white
+              font-semibold rounded-full
+              hover:bg-blue-600
+              shadow-md
+              transition-all
+              flex items-center gap-2
+            "
           >
             <Filter size={16} />
             <span>Filter</span>
           </button>
-
         </div>
       </div>
 
@@ -210,15 +235,14 @@ export default function Dashboard() {
                 setActiveCategory(option.id);
               }}
               className={`
-          inline-flex items-center gap-2 px-5 py-2 rounded-full
-          border font-semibold text-sm
-          transition-all hover:-translate-y-0.5
-
-          ${filter === option.id
+                inline-flex items-center gap-2 px-5 py-2 rounded-full
+                border font-semibold text-sm
+                transition-all hover:-translate-y-0.5
+                ${filter === option.id
                   ? "bg-blue-500 border-blue-500 text-white"
                   : "bg-white border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600"
                 }
-        `}
+              `}
             >
               {option.icon}
               <span>{option.label}</span>
@@ -380,6 +404,143 @@ export default function Dashboard() {
           </div>
         </div>
       </footer>
+
+      {/* ATTRACTIVE POPUP - ALL LOANS */}
+      {isPopupOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto overflow-x-hidden ">
+          {/* Backdrop with blur effect */}
+          <div 
+            className="fixed inset-0 bg-white/30 backdrop-blur-md transition-opacity"
+            onClick={closePopup}
+          />
+          
+          {/* Popup Content - Centered with animation */}
+          <div className="relative min-h-screen flex items-center justify-center p-4">
+            <div 
+className="relative bg-white/85 backdrop-blur-xl rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden shadow-2xl border-2 border-blue-300/40 animate-fadeInUp"              onClick={(e) => e.stopPropagation()}
+              style={{ animationDuration: '0.4s' }}
+            >
+              {/* Gradient Header with Decorative Elements */}
+              <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500 p-8 text-white rounded-t-3xl">
+                {/* Decorative Circles */}
+                <div className="absolute top-0 left-0 w-40 h-40 bg-white/10 rounded-full -translate-x-20 -translate-y-20" />
+                <div className="absolute bottom-0 right-0 w-56 h-56 bg-white/10 rounded-full translate-x-28 translate-y-28" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full" />
+                
+                {/* Header Content */}
+                <div className="relative z-10">
+                  <div className="flex justify-center mb-4">
+                    <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full text-sm font-semibold border border-white/30">
+                      <Sparkles size={16} className="animate-pulse" />
+                      <span>RBI Approved Loans</span>
+                    </span>
+                  </div>
+                  <h2 className="text-4xl md:text-5xl font-extrabold mb-3 text-center tracking-tight">
+                    ✨ All Loan Products
+                  </h2>
+                  <p className="text-center text-blue-100 text-lg md:text-xl max-w-2xl mx-auto">
+                    Choose from our complete range of loan options tailored for your dreams
+                  </p>
+                  
+                 
+                </div>
+              </div>
+              
+              {/* Products Grid */}
+              <div className="p-8 bg-blue-50/40">
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <div className="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 border-t-blue-500 rounded-full animate-spin mb-4" />
+                    <p className="text-gray-500 dark:text-gray-400 text-lg">Loading amazing loans for you...</p>
+                  </div>
+                ) : loanProducts.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="text-6xl mb-4">🏦</div>
+                    <h3 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      No loans available
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Please check back later for new loan products.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {loanProducts.map((loan) => (
+                      <div 
+                        key={loan.id} 
+                             className="group bg-white/70 backdrop-blur-md rounded-2xl p-5 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 border border-blue-100 hover:border-blue-400 cursor-pointer hover:-translate-y-1"                        onClick={() => {
+                          router.push(`/apply?loan=${loan.id}`);
+                        }}
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Icon with Gradient Background */}
+                          <div className="relative">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-400 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                              {getLoanIcon(loan.loan_type)}
+                            </div>
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
+                          </div>
+                          
+                          {/* Content */}
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                {loan.name}
+                              </h3>
+                              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold rounded-full">
+                                {loan.loan_type || 'Loan'}
+                              </span>
+                            </div>
+                            
+                            <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
+                              {loan.description || 'Flexible loan option with competitive rates and quick approval process.'}
+                            </p>
+                            
+                            {/* Features Tags */}
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs rounded-full">
+                                <Zap size={12} /> Instant
+                              </span>
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs rounded-full">
+                                <Shield size={12} /> Secure
+                              </span>
+                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-xs rounded-full">
+                                <Clock size={12} /> Flexible
+                              </span>
+                            </div>
+                            
+                            {/* Amount and Rate */}
+                            <div className="grid grid-cols-2 gap-3 bg-white dark:bg-gray-900/50 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                              <div>
+                                <div className="text-xs text-gray-400 mb-1">Amount Range</div>
+                                <div className="text-sm font-bold text-gray-900 dark:text-white">
+                                  ₹{loan.min_amount?.toLocaleString() || '50K'} - ₹{loan.max_amount?.toLocaleString() || '50L'}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-gray-400 mb-1">Interest Rate</div>
+                                <div className="text-sm font-bold text-gray-900 dark:text-white">
+                                  {loan.min_interest_rate || '7.5'}% - {loan.max_interest_rate || '15'}%
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Apply Button */}
+                            <button className="mt-3 w-full py-2.5 bg-gradient-to-r from-blue-400 to-blue-500 text-white text-sm font-semibold rounded-xl hover:from-blue-500 hover:to-blue-400 transition-all transform group-hover:scale-[1.02] shadow-lg shadow-blue-500/25">
+                              Apply Now
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         @keyframes gradient {
