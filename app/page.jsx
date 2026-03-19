@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [profileData, setProfileData] = useState({});
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   useEffect(() => {
     const fetchLoanProducts = async () => {
