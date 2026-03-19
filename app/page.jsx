@@ -14,6 +14,7 @@ import {
 import { isAuthenticated, getWithAuth, BASE_URL } from "@/app/lib/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "axios";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -28,6 +29,20 @@ export default function Dashboard() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [profileData, setProfileData] = useState({});
+  const [isPopupOpen, setIsPopupOpen] = useState(true);
+  
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
+
+const getLoanIcon = (type) => ({
+  "Personal Loan": <User size={24} />,
+  "Business Loan": <TrendingUp size={24} />,
+  "Home Loan": <Home size={24} />,
+  "Education Loan": <GraduationIcon size={24} />,
+  "Vehicle Loan": <Car size={24} />,
+  "Gold Loan": <Gem size={24} />,
+}[type] || <Briefcase size={24} />);
 
   useEffect(() => {
     const fetchLoanProducts = async () => {
@@ -55,8 +70,11 @@ export default function Dashboard() {
 
 
   useEffect(() => {
-    checkProfile();
-  }, []);
+    // Only check profile if user is NOT logged in
+    if (!loggedIn) {
+      checkProfile();
+    }
+  }, [loggedIn]);
 
   const filterOptions = [
     { id: "all", label: "All Loans", icon: <Briefcase size={16} /> },
@@ -101,8 +119,8 @@ export default function Dashboard() {
 
       setProfileData(user);
 
-      // 🔥 MAIN LOGIC
-      if (!user.pan_number || !user.monthly_income) {
+      // 🔥 FIXED: Only show popup if user is NOT logged in AND profile is incomplete
+      if (!loggedIn && (!user.pan_number || !user.monthly_income)) {
         setShowProfilePopup(true);
       }
 
@@ -429,7 +447,8 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {showProfilePopup && (
+          {/* Profile Popup - Only shows for NON-logged in users */}
+          {!loggedIn && showProfilePopup && (
             <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
               <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-xl">
 
@@ -471,8 +490,8 @@ export default function Dashboard() {
         </div>
       </footer>
 
-      {/* ATTRACTIVE POPUP - ALL LOANS */}
-      {isPopupOpen && (
+      {/* ATTRACTIVE POPUP - ALL LOANS - Only shows for NON-logged in users */}
+      {!loggedIn && isPopupOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto overflow-x-hidden ">
           {/* Backdrop with blur effect */}
           <div 
