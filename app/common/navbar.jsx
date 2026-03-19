@@ -18,7 +18,7 @@ import {
   FaEnvelope,
   FaPhone,
   FaUserPlus,
-  FaSignInAlt
+  FaSignInAlt,
 } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -40,14 +40,30 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
 
   // Check login status on component mount
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    setIsLoggedIn(!!token);
-    
-    if (token) {
-      fetchUserProfile();
-      fetchWalletBalance();
-    }
-    setLoading(false);
+    const checkLogin = () => {
+      const token = localStorage.getItem("access_token");
+      setIsLoggedIn(!!token);
+
+      if (token) {
+        fetchUserProfile();
+        fetchWalletBalance();
+      } else {
+        setUserProfile(null);
+        setWalletBalance(null);
+      }
+
+      setLoading(false);
+    };
+
+    // First load
+    checkLogin();
+
+    // 🔥 Listen login event
+    window.addEventListener("userLoggedIn", checkLogin);
+
+    return () => {
+      window.removeEventListener("userLoggedIn", checkLogin);
+    };
   }, []);
 
   // 🪙 Fetch Wallet Balance Function
@@ -89,7 +105,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           customer_id_type: "mobile_number",
@@ -129,12 +145,11 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
       setUserProfile(response.data);
 
       // Store user data in localStorage for quick access
-      localStorage.setItem('user_profile', JSON.stringify(response.data));
-
+      localStorage.setItem("user_profile", JSON.stringify(response.data));
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
       // Try to get from localStorage as fallback
-      const cachedProfile = localStorage.getItem('user_profile');
+      const cachedProfile = localStorage.getItem("user_profile");
       if (cachedProfile) {
         setUserProfile(JSON.parse(cachedProfile));
       }
@@ -184,7 +199,10 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsProfileOpen(false);
       }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target)
+      ) {
         setIsMobileMenuOpen(false);
       }
     };
@@ -193,11 +211,13 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
   }, []);
 
   const handleLogout = () => {
-  localStorage.clear();
-  setIsLoggedIn(false);
-  setUserProfile(null);
-  router.push("/"); // 👈 homepage redirect
-};
+    localStorage.clear();
+    setIsLoggedIn(false);
+    setUserProfile(null);
+    window.dispatchEvent(new Event("userLoggedIn"));
+    // 🔥 HARD redirect (instant)
+    window.location.href = "/";
+  };
   // Get user display name
   const getDisplayName = () => {
     if (!userProfile) return "User";
@@ -216,11 +236,11 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
     return userProfile.role.charAt(0).toUpperCase() + userProfile.role.slice(1);
   };
 
-  const hasBasicProfile = userProfile && (
-    userProfile.first_name ||
-    userProfile.last_name ||
-    userProfile.phone_number
-  );
+  const hasBasicProfile =
+    userProfile &&
+    (userProfile.first_name ||
+      userProfile.last_name ||
+      userProfile.phone_number);
 
   const canViewAEPS = (role) => {
     return role === "admin";
@@ -343,7 +363,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
   // Render logged-in navbar (existing functionality with full width)
   return (
     <div className="bg-gradient-to-r from-[#0f172a] via-[#1e3a8a] to-[#2563eb] backdrop-blur-md shadow-lg w-full">
-      <div className="flex justify-between items-center px-2 sm:px-1 py-1 h-[60px]">
+      <div className="flex justify-between items-center px-2 sm:px-1 py-1 h-[65px]">
         {/* Left Section - Hamburger Menu */}
         <div className="relative hidden md:flex items-center">
           {/* ARROW CARD */}
@@ -436,7 +456,9 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
               </div>
               <FaChevronDown
                 className={`text-white text-xs transition-all duration-300 ${
-                  isProfileOpen ? "rotate-180 text-[#6DDC01]" : "group-hover:text-[#6DDC01]"
+                  isProfileOpen
+                    ? "rotate-180 text-[#6DDC01]"
+                    : "group-hover:text-[#6DDC01]"
                 }`}
               />
             </button>
@@ -467,7 +489,9 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-base font-semibold truncate">{getDisplayName()}</p>
+                        <p className="text-base font-semibold truncate">
+                          {getDisplayName()}
+                        </p>
                         <p className="text-[12px] text-gray-200 truncate">
                           {userProfile?.email || "No email provided"}
                         </p>
@@ -489,8 +513,12 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
                   >
                     <FaUser className="text-[#6DDC01] text-sm group-hover:scale-110 transition-transform" />
                     <div>
-                      <div className="font-medium text-base">Onboarding KYC</div>
-                      <div className="text-sm text-gray-200">Start money transfer KYC</div>
+                      <div className="font-medium text-base">
+                        Onboarding KYC
+                      </div>
+                      <div className="text-sm text-gray-200">
+                        Start money transfer KYC
+                      </div>
                     </div>
                   </button>
 
@@ -505,7 +533,9 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
                     <FaUser className="text-[#6DDC01] text-sm group-hover:scale-110 transition-transform" />
                     <div>
                       <div className="font-medium text-base">My Profile</div>
-                      <div className="text-sm text-gray-200">View and edit profile</div>
+                      <div className="text-sm text-gray-200">
+                        View and edit profile
+                      </div>
                     </div>
                   </button>
 
@@ -518,8 +548,12 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
                   >
                     <FaKey className="text-[#6DDC01] text-sm group-hover:scale-110 transition-transform" />
                     <div>
-                      <div className="font-medium text-base">Reset Password</div>
-                      <div className="text-sm text-gray-200">Change your password</div>
+                      <div className="font-medium text-base">
+                        Reset Password
+                      </div>
+                      <div className="text-sm text-gray-200">
+                        Change your password
+                      </div>
                     </div>
                   </button>
 
@@ -533,7 +567,9 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
                     <FaLock className="text-[#6DDC01] text-sm group-hover:scale-110 transition-transform" />
                     <div>
                       <div className="font-medium text-base">Reset PIN</div>
-                      <div className="text-sm text-gray-200">Change wallet PIN</div>
+                      <div className="text-sm text-gray-200">
+                        Change wallet PIN
+                      </div>
                     </div>
                   </button>
 
@@ -547,7 +583,9 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }) {
                     <FaKey className="text-[#6DDC01] text-sm group-hover:scale-110 transition-transform" />
                     <div>
                       <div className="font-medium text-base">Forget PIN</div>
-                      <div className="text-sm text-gray-200">Reset wallet PIN</div>
+                      <div className="text-sm text-gray-200">
+                        Reset wallet PIN
+                      </div>
                     </div>
                   </button>
 

@@ -27,7 +27,7 @@ export default function MobileOtpLogin() {
       setMessage("");
 
       const response = await post("auth/send_mobile_otp/", {
-        mobile: mobile
+        mobile: mobile,
       });
 
       console.log("Send OTP Response:", response);
@@ -40,7 +40,9 @@ export default function MobileOtpLogin() {
       }
     } catch (err) {
       console.error("Send OTP Error:", err);
-      setMessage(err.response?.data?.error || err.message || "Something went wrong");
+      setMessage(
+        err.response?.data?.error || err.message || "Something went wrong",
+      );
     } finally {
       setLoading(false);
     }
@@ -60,7 +62,7 @@ export default function MobileOtpLogin() {
 
       const response = await post("auth/verify_mobile_otp/", {
         mobile: mobile,
-        otp: otp
+        otp: otp,
       });
 
       console.log("Verify OTP Response:", response);
@@ -74,14 +76,14 @@ export default function MobileOtpLogin() {
         localStorage.setItem("user_mobile", response.mobile || mobile);
 
         if (response.needs_pin_setup || !response.is_pin_set) {
-          router.push("/home");
+          router.push("/");
         } else {
           const userRole = response.role;
-          if (userRole === 'admin' || userRole === 'superadmin') {
+          if (userRole === "admin" || userRole === "superadmin") {
             router.push("/admin");
-          } else if (userRole === 'dealer') {
+          } else if (userRole === "dealer") {
             router.push("/dealer");
-          } else if (userRole === 'master') {
+          } else if (userRole === "master") {
             router.push("/master");
           } else {
             router.push("/");
@@ -92,7 +94,11 @@ export default function MobileOtpLogin() {
       }
     } catch (err) {
       console.error("Verify OTP Error:", err);
-      setMessage(err.response?.data?.error || err.message || "Invalid OTP. Please try again.");
+      setMessage(
+        err.response?.data?.error ||
+          err.message ||
+          "Invalid OTP. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -104,7 +110,7 @@ export default function MobileOtpLogin() {
       setMessage("");
 
       const response = await post("auth/resend_mobile_otp/", {
-        mobile: mobile 
+        mobile: mobile,
       });
 
       if (response.message || response.success) {
@@ -115,20 +121,21 @@ export default function MobileOtpLogin() {
       }
     } catch (err) {
       console.error("Resend OTP Error:", err);
-      setMessage(err.response?.data?.error || err.message || "Failed to resend OTP");
+      setMessage(
+        err.response?.data?.error || err.message || "Failed to resend OTP",
+      );
     } finally {
       setLoading(false);
     }
   };
 
-
   const handleMobileChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
     setMobile(value);
   };
 
   const handleOtpChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
     setOtp(value);
   };
 
@@ -220,13 +227,16 @@ export default function MobileOtpLogin() {
       )}
 
       {message && (
-        <div className={`mt-4 p-3 rounded-md text-sm ${message.toLowerCase().includes("failed") ||
-          message.toLowerCase().includes("error") ||
-          message.toLowerCase().includes("invalid") ||
-          message.toLowerCase().includes("wrong")
-          ? "bg-red-50 text-red-700 border border-red-200"
-          : "bg-green-50 text-green-700 border border-green-200"
-          }`}>
+        <div
+          className={`mt-4 p-3 rounded-md text-sm ${
+            message.toLowerCase().includes("failed") ||
+            message.toLowerCase().includes("error") ||
+            message.toLowerCase().includes("invalid") ||
+            message.toLowerCase().includes("wrong")
+              ? "bg-red-50 text-red-700 border border-red-200"
+              : "bg-green-50 text-green-700 border border-green-200"
+          }`}
+        >
           {message}
         </div>
       )}
