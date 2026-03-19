@@ -75,21 +75,61 @@ export default function OnboardingForm() {
     setForm((p) => ({ ...p, [name]: v }));
   };
 
+  const showPopup = (message, type, showLoginButton = false) => {
+    setPopup({
+      show: true,
+      message,
+      type,
+      showLoginButton,
+    });
+
+    // Agar success hai to 3 sec baad popup band karo
+    // Error aur login button wala popup manually band hoga
+    if (type === "success") {
+      setTimeout(() => {
+        setPopup((prev) => ({ ...prev, show: false }));
+      }, 3000);
+    }
+  };
+
+  // Login button click handler
+  const goToLogin = () => {
+    setPopup({ show: false, message: "", type: "", showLoginButton: false });
+    router.push('/login'); // Apne login page ke route se replace karein
+  };
+
   const sendMobileOtp = async () => {
+    setLoading(true);
     try {
       await axios.post(`${BASE_URL}signup-auth/send_signup_otp/`, {
         mobile: form.mobile
       });
 
+      // Agar successful hai to hi OTP screen dikhao
       setMobileStep("otp");
       setMobileTimer(30);
-
+      
     } catch (err) {
-      alert(err?.response?.data?.error || "OTP send failed");
+      // Check karo agar mobile already registered hai
+      const errorMessage = err?.response?.data?.error || "OTP send failed";
+      
+      if (errorMessage.toLowerCase().includes("already registered") || 
+          errorMessage.toLowerCase().includes("already exists")) {
+        
+        // Popup dikhao login button ke saath
+        showPopup(
+          "This mobile number is already registered. Please login to continue.",
+          "error",
+          true // showLoginButton = true
+        );
+        
+      } else {
+        // Kisi aur error ke liye simple alert
+        alert(errorMessage);
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setMobileStep("otp");
-    setMobileTimer(30);
   };
 
   const resendMobileOtp = async () => {
@@ -98,6 +138,7 @@ export default function OnboardingForm() {
   };
 
   const verifyMobileOtp = async () => {
+    setLoading(true);
     try {
       const res = await axios.post(
         `${BASE_URL}signup-auth/verify_signup_otp/`,
@@ -114,10 +155,13 @@ export default function OnboardingForm() {
 
     } catch (err) {
       alert(err?.response?.data?.error || "Invalid OTP");
+    } finally {
+      setLoading(false);
     }
   };
 
   const sendEmailOtp = async () => {
+    setLoading(true);
     try {
       const user_id = localStorage.getItem("temp_user_id");
 
@@ -131,12 +175,15 @@ export default function OnboardingForm() {
 
     } catch (err) {
       alert(err?.response?.data?.error || "Failed to send OTP");
+    } finally {
+      setLoading(false);
     }
   };
 
   const resendEmailOtp = async () => {
     if (emailTimer > 0) return;
 
+    setLoading(true);
     try {
       const user_id = localStorage.getItem("temp_user_id");
 
@@ -148,10 +195,13 @@ export default function OnboardingForm() {
 
     } catch (err) {
       alert("Failed to resend OTP");
+    } finally {
+      setLoading(false);
     }
   };
 
   const verifyEmailOtp = async () => {
+    setLoading(true);
     try {
       const user_id = localStorage.getItem("temp_user_id");
 
@@ -172,10 +222,10 @@ export default function OnboardingForm() {
         completeProfile();
       }, 500);
 
-      alert("🎉 Signup Complete & Logged In!");
-
     } catch (err) {
       alert(err?.response?.data?.error || "Invalid OTP");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -204,6 +254,12 @@ export default function OnboardingForm() {
           "Profile Completed! 🎉",
         "success",
       );
+
+      // Redirect to dashboard after successful profile completion
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
+
     } catch (error) {
       const errorMessage =
         error.response?.data?.message ||
@@ -233,17 +289,26 @@ export default function OnboardingForm() {
                 <CheckCircle size={20} />
               )}
               <span className="flex-1">{popup.message}</span>
+              
+              {/* Close button */}
+              <button 
+                onClick={() => setPopup({ ...popup, show: false })}
+                className="hover:bg-white/20 rounded-full p-1"
+              >
+                <X size={16} />
+              </button>
             </div>
 
             {/* Login Button - sirf tab dikhega jab mobile already registered ho */}
             {popup.showLoginButton && (
-              <div className="flex justify-end">
+              <div className="flex justify-end mt-2">
                 <button
                   onClick={goToLogin}
                   className="bg-white text-red-500 font-semibold py-2 px-4 rounded-lg 
                                 hover:bg-red-50 transition-colors duration-200 flex items-center gap-2"
                 >
-                  Login
+                  <LogIn size={18} />
+                  Go to Login
                 </button>
               </div>
             )}
@@ -326,6 +391,7 @@ export default function OnboardingForm() {
                     <button
                       onClick={resendMobileOtp}
                       className="text-indigo-600 font-medium"
+                      disabled={loading}
                     >
                       Resend OTP
                     </button>
@@ -410,6 +476,7 @@ export default function OnboardingForm() {
                     <button
                       onClick={resendEmailOtp}
                       className="text-indigo-600 font-medium"
+                      disabled={loading}
                     >
                       Resend OTP
                     </button>
