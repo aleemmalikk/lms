@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  BASE_URL,
-  postWithAuth,
-} from "../../lib/api";
+import { BASE_URL, postWithAuth } from "../../lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CreditCard,
@@ -23,7 +20,7 @@ import {
   TrendingUp,
   Shield,
   FileText,
-  ArrowRight
+  ArrowRight,
 } from "lucide-react";
 
 export default function LoanApplyPage() {
@@ -69,13 +66,14 @@ export default function LoanApplyPage() {
 
   useEffect(() => {
     let completed = 0;
-    const totalFields = Object.keys(customerDetails).length + Object.keys(formData).length;
+    const totalFields =
+      Object.keys(customerDetails).length + Object.keys(formData).length;
 
-    Object.values(customerDetails).forEach(val => {
+    Object.values(customerDetails).forEach((val) => {
       if (val && val.toString().trim() !== "") completed++;
     });
 
-    Object.values(formData).forEach(val => {
+    Object.values(formData).forEach((val) => {
       if (val && val.toString().trim() !== "" && val !== false) completed++;
     });
 
@@ -83,16 +81,16 @@ export default function LoanApplyPage() {
   }, [customerDetails, formData]);
 
   const fetchCategories = async () => {
-  try {
-    const res = await fetch(`${BASE_URL}loan-categories/`);
-    const data = await res.json();
-    setCategories(data);
-  } catch (error) {
-    console.error(error);
-    setMessageType("error");
-    setMessage("Failed to load loan categories");
-  }
-};
+    try {
+      const res = await fetch(`${BASE_URL}loan-categories/`);
+      const data = await res.json();
+      setCategories(data);
+    } catch (error) {
+      console.error(error);
+      setMessageType("error");
+      setMessage("Failed to load loan categories");
+    }
+  };
 
   const handleCustomerChange = (e) => {
     const { name, value } = e.target;
@@ -152,7 +150,7 @@ export default function LoanApplyPage() {
 
       const submitRes = await postWithAuth(
         `loan-applications/${createRes.id}/submit/`,
-        {}
+        {},
       );
 
       setRiskResult(submitRes);
@@ -189,7 +187,6 @@ export default function LoanApplyPage() {
       });
 
       setCurrentStep(1);
-
     } catch (error) {
       setMessageType("error");
       setMessage(error.message || "Application failed");
@@ -209,9 +206,8 @@ export default function LoanApplyPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-5xl mx-auto"
+        className="max-w-7xl mx-auto"
       >
-
         <div className="flex justify-end">
           <Link
             href="/my-applications/apply/aplicantlist"
@@ -229,14 +225,20 @@ export default function LoanApplyPage() {
           >
             Loan Application
           </motion.h1>
-          <p className="text-gray-600">Get instant eligibility decision in minutes</p>
+          <p className="text-gray-600">
+            Get instant eligibility decision in minutes
+          </p>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Application Progress</span>
-            <span className="text-sm font-medium text-blue-600">{formProgress}%</span>
+            <span className="text-sm font-medium text-gray-700">
+              Application Progress
+            </span>
+            <span className="text-sm font-medium text-blue-600">
+              {formProgress}%
+            </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <motion.div
@@ -253,28 +255,37 @@ export default function LoanApplyPage() {
             <motion.div
               key={step.number}
               whileHover={{ scale: 1.05 }}
-              className={`flex items-center ${index < steps.length - 1 ? 'flex-1' : ''}`}
+              className={`flex items-center ${index < steps.length - 1 ? "flex-1" : ""}`}
             >
               <div
-                className={`flex items-center cursor-pointer ${currentStep >= step.number ? 'text-blue-600' : 'text-gray-400'
-                  }`}
+                className={`flex items-center cursor-pointer ${
+                  currentStep >= step.number ? "text-blue-600" : "text-gray-400"
+                }`}
                 onClick={() => step.number <= 2 && setCurrentStep(step.number)}
               >
-                <div className={`
+                <div
+                  className={`
                   w-10 h-10 rounded-full flex items-center justify-center border-2 
                   transition-all duration-300
-                  ${currentStep >= step.number
-                    ? 'border-blue-600 bg-blue-600 text-white'
-                    : 'border-gray-300 bg-white text-gray-400'
+                  ${
+                    currentStep >= step.number
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-gray-300 bg-white text-gray-400"
                   }
-                `}>
+                `}
+                >
                   <step.icon className="w-5 h-5" />
                 </div>
-                <span className="ml-2 text-sm font-medium hidden sm:block">{step.title}</span>
+                <span className="ml-2 text-sm font-medium hidden sm:block">
+                  {step.title}
+                </span>
               </div>
               {index < steps.length - 1 && (
-                <div className={`flex-1 h-0.5 mx-4 ${currentStep > step.number ? 'bg-blue-600' : 'bg-gray-300'
-                  }`} />
+                <div
+                  className={`flex-1 h-0.5 mx-4 ${
+                    currentStep > step.number ? "bg-blue-600" : "bg-gray-300"
+                  }`}
+                />
               )}
             </motion.div>
           ))}
@@ -287,15 +298,32 @@ export default function LoanApplyPage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className={`mb-6 p-4 rounded-lg flex items-start gap-3 ${messageType === 'success' ? 'bg-green-50 border border-green-200' :
-                messageType === 'error' ? 'bg-red-50 border border-red-200' :
-                  'bg-blue-50 border border-blue-200'
-                }`}
+              className={`mb-6 p-4 rounded-lg flex items-start gap-3 ${
+                messageType === "success"
+                  ? "bg-green-50 border border-green-200"
+                  : messageType === "error"
+                    ? "bg-red-50 border border-red-200"
+                    : "bg-blue-50 border border-blue-200"
+              }`}
             >
-              {messageType === 'success' && <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />}
-              {messageType === 'error' && <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />}
-              {messageType === 'info' && <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />}
-              <span className={messageType === 'success' ? 'text-green-700' : messageType === 'error' ? 'text-red-700' : 'text-blue-700'}>
+              {messageType === "success" && (
+                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              )}
+              {messageType === "error" && (
+                <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              )}
+              {messageType === "info" && (
+                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              )}
+              <span
+                className={
+                  messageType === "success"
+                    ? "text-green-700"
+                    : messageType === "error"
+                      ? "text-red-700"
+                      : "text-blue-700"
+                }
+              >
                 {message}
               </span>
             </motion.div>
@@ -322,12 +350,18 @@ export default function LoanApplyPage() {
                 </div>
                 <div>
                   <p className="text-blue-100 text-sm">Status</p>
-                  <p className={`text-2xl font-bold ${riskResult?.status === 'approved' ? 'text-green-300' :
-                    riskResult.status === 'rejected' ? 'text-red-300' :
-                      'text-yellow-300'
-                    }`}>
+                  <p
+                    className={`text-2xl font-bold ${
+                      riskResult?.status === "approved"
+                        ? "text-green-300"
+                        : riskResult.status === "rejected"
+                          ? "text-red-300"
+                          : "text-yellow-300"
+                    }`}
+                  >
                     {riskResult?.status
-                      ? riskResult.status.charAt(0).toUpperCase() + riskResult.status.slice(1)
+                      ? riskResult.status.charAt(0).toUpperCase() +
+                        riskResult.status.slice(1)
                       : "Rejected"}
                   </p>
                 </div>
@@ -545,12 +579,16 @@ export default function LoanApplyPage() {
                 </h2>
 
                 {/* Eligibility Score Card */}
-                {Object.values(formData).some(val => val) && (
+                {Object.values(formData).some((val) => val) && (
                   <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg mb-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600">Estimated Eligibility Score</p>
-                        <p className="text-2xl font-bold text-green-600">{getEligibilityScore()}</p>
+                        <p className="text-sm text-gray-600">
+                          Estimated Eligibility Score
+                        </p>
+                        <p className="text-2xl font-bold text-green-600">
+                          {getEligibilityScore()}
+                        </p>
                       </div>
                       <TrendingUp className="w-8 h-8 text-green-500" />
                     </div>
@@ -637,8 +675,13 @@ export default function LoanApplyPage() {
                     <div className="mt-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">FOIR:</span>
-                        <span className={`font-medium ${parseFloat(calculateFOIR()) <= 40 ? 'text-green-600' : 'text-orange-600'
-                          }`}>
+                        <span
+                          className={`font-medium ${
+                            parseFloat(calculateFOIR()) <= 40
+                              ? "text-green-600"
+                              : "text-orange-600"
+                          }`}
+                        >
                           {calculateFOIR()}%
                         </span>
                       </div>
@@ -683,7 +726,9 @@ export default function LoanApplyPage() {
                       onChange={handleLoanChange}
                       className="w-4 h-4 text-blue-600"
                     />
-                    <span className="text-sm text-gray-700">Has 90+ Days Past Due (DPD)</span>
+                    <span className="text-sm text-gray-700">
+                      Has 90+ Days Past Due (DPD)
+                    </span>
                   </label>
 
                   <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition cursor-pointer">
@@ -694,7 +739,9 @@ export default function LoanApplyPage() {
                       onChange={handleLoanChange}
                       className="w-4 h-4 text-blue-600"
                     />
-                    <span className="text-sm text-gray-700">Previously Written Off</span>
+                    <span className="text-sm text-gray-700">
+                      Previously Written Off
+                    </span>
                   </label>
                 </div>
 
@@ -732,28 +779,46 @@ export default function LoanApplyPage() {
 
                 <div className="space-y-4">
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-gray-800 mb-3">Personal Information</h3>
+                    <h3 className="font-medium text-gray-800 mb-3">
+                      Personal Information
+                    </h3>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <span className="text-gray-600">Name:</span>
-                      <span className="text-gray-800">{customerDetails.full_name}</span>
+                      <span className="text-gray-800">
+                        {customerDetails.full_name}
+                      </span>
                       <span className="text-gray-600">Email:</span>
-                      <span className="text-gray-800">{customerDetails.email}</span>
+                      <span className="text-gray-800">
+                        {customerDetails.email}
+                      </span>
                       <span className="text-gray-600">Phone:</span>
-                      <span className="text-gray-800">{customerDetails.phone}</span>
+                      <span className="text-gray-800">
+                        {customerDetails.phone}
+                      </span>
                       <span className="text-gray-600">PAN:</span>
-                      <span className="text-gray-800">{customerDetails.pan_number}</span>
+                      <span className="text-gray-800">
+                        {customerDetails.pan_number}
+                      </span>
                     </div>
                   </div>
 
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-gray-800 mb-3">Loan Details</h3>
+                    <h3 className="font-medium text-gray-800 mb-3">
+                      Loan Details
+                    </h3>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <span className="text-gray-600">Amount:</span>
-                      <span className="text-gray-800">₹{formData.requested_amount}</span>
+                      <span className="text-gray-800">
+                        ₹{formData.requested_amount}
+                      </span>
                       <span className="text-gray-600">Tenure:</span>
-                      <span className="text-gray-800">{formData.tenure_months} months</span>
+                      <span className="text-gray-800">
+                        {formData.tenure_months} months
+                      </span>
                       <span className="text-gray-600">Monthly Income:</span>
-                      <span className="text-gray-800">₹{formData.avg_monthly_income}</span>
+                      <span className="text-gray-800">
+                        ₹{formData.avg_monthly_income}
+                      </span>
                       <span className="text-gray-600">FOIR:</span>
                       <span className="text-gray-800">{calculateFOIR()}%</span>
                     </div>
