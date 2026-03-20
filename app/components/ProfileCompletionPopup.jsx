@@ -7,6 +7,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import Step1Personal from "./profileupdate/Step1Personal";
 import Step2Address from "./profileupdate/Step2Address";
 import Step3Employment from "./profileupdate/Step3Employment";
+import { useRouter } from "next/navigation";
 
 export default function ProfileCompletionPopup({
   open,
@@ -14,7 +15,9 @@ export default function ProfileCompletionPopup({
   setProfileData,
   onUpdate,
   onClose,
+  onComplete, // New callback for when profile is completed
 }) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,8 +57,23 @@ export default function ProfileCompletionPopup({
 
   const handleUpdate = async () => {
     setIsSubmitting(true);
-    await onUpdate();
-    setIsSubmitting(false);
+    try {
+      await onUpdate();
+
+      // Call onComplete callback if provided
+      if (onComplete) {
+        setTimeout(() => {
+          onComplete();
+        }, 500);
+      } else {
+        // Default redirect to eligibility page
+        router.push("/loan-eligibility");
+      }
+    } catch (error) {
+      console.error("Profile update failed:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

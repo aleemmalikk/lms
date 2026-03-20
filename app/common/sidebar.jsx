@@ -127,7 +127,7 @@ export default function Sidebar({
   const adminMenu = [
     ...baseMenu,
     { label: "Users Onboarding", path: "/usersonboarding", icon: <FaUserShield /> },
-     { label: "Aplications Lists", path: "/my-applications/apply/aplicantlist", icon: <FaList /> },
+    { label: "Aplications Lists", path: "/my-applications/apply/aplicantlist", icon: <FaList /> },
     { label: "Lons Category", path: "/loan/category", icon: <FaUserShield /> },
     { label: "Loan Products", path: "/loanproducts", icon: <FaInfoCircle /> },
     { label: "Loan Eligibility", path: "/loan-eligibility", icon: <FaUsers /> },
@@ -160,10 +160,17 @@ export default function Sidebar({
     ...services,
 
     {
+      label: "Check Eligibility",
+      path: "/loan-eligibility?autoCheck=true",
+      icon: <FaChartLine size={18} />,
+    },
+
+    {
       label: "My Applications",
       path: "/my-applications/apply",
       icon: <FaFileAlt size={18} />,
     },
+
     {
       label: "My Loans",
       path: "/loans",
