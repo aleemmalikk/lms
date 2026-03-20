@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getWithAuth, postWithAuth } from "../lib/api";
+import { getWithAuth, postWithAuth } from "../../lib/api";
 import {
   TrendingUpIcon,
   TrendingDownIcon,
