@@ -53,6 +53,7 @@ import { isAuthenticated, getWithAuth, BASE_URL } from "@/app/lib/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import ProfileCompletionPopup from "@/components/ProfileCompletionPopup";
 import {
   BarChart,
   Bar,
@@ -824,7 +825,6 @@ export default function Dashboard() {
       const user = res.data;
       setProfileData(user);
 
-      // 🔥 MAIN LOGIC
       if (
         !user.pan_number ||
         !user.monthly_income ||
@@ -852,77 +852,32 @@ export default function Dashboard() {
         },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      alert("✅ Profile Updated");
+      alert("Profile Updated");
       setShowProfilePopup(false);
     } catch (err) {
       alert("Failed to update profile");
     }
   };
 
-  // ── If logged in → show analytics dashboard ──
   if (loggedIn) {
     return (
       <>
-        {/* 🔥 PROFILE POPUP */}
-        {showProfilePopup && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-xl">
-              <h2 className="text-xl font-bold mb-4 text-center">
-                Complete Your Profile ⚡
-              </h2>
+        <>
+          <ProfileCompletionPopup
+            open={showProfilePopup}
+            profileData={profileData}
+            setProfileData={setProfileData}
+            onUpdate={updateProfile}
+          />
 
-              <input
-                placeholder="PAN Number"
-                value={profileData.pan_number || ""}
-                onChange={(e) =>
-                  setProfileData({
-                    ...profileData,
-                    pan_number: e.target.value,
-                  })
-                }
-                className="w-full border p-3 rounded-xl mb-3"
-              />
+          <LoggedInDashboard
+            loanProducts={loanProducts}
+            loading={loading}
+            error={error}
+          />
+        </>
 
-              <input
-                placeholder="Monthly Income"
-                value={profileData.monthly_income || ""}
-                onChange={(e) =>
-                  setProfileData({
-                    ...profileData,
-                    monthly_income: e.target.value,
-                  })
-                }
-                className="w-full border p-3 rounded-xl mb-3"
-              />
 
-              <input
-                placeholder="CIBIL Score"
-                value={profileData.cibil_score || ""}
-                onChange={(e) =>
-                  setProfileData({
-                    ...profileData,
-                    cibil_score: e.target.value,
-                  })
-                }
-                className="w-full border p-3 rounded-xl mb-4"
-              />
-
-              <button
-                onClick={updateProfile}
-                className="w-full bg-indigo-600 text-white py-2 rounded-xl"
-              >
-                Update Profile
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ✅ DASHBOARD */}
-        <LoggedInDashboard
-          loanProducts={loanProducts}
-          loading={loading}
-          error={error}
-        />
       </>
     );
   }
@@ -1287,7 +1242,7 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-          
+
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
             <p>
