@@ -53,7 +53,7 @@ import { isAuthenticated, getWithAuth, BASE_URL } from "@/app/lib/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
-import ProfileCompletionPopup from "@/components/ProfileCompletionPopup";
+import ProfileCompletionPopup from "./components/ProfileCompletionPopup";
 import {
   BarChart,
   Bar,
@@ -724,7 +724,7 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
 
 export default function Dashboard() {
   const router = useRouter();
-  const loggedIn = isAuthenticated();
+  const [loggedIn, setLoggedIn] = useState(null);
   const [loanProducts, setLoanProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -778,6 +778,10 @@ export default function Dashboard() {
       checkProfile();
     }
   }, [loggedIn]);
+
+  useEffect(() => {
+    setLoggedIn(isAuthenticated());
+  }, []);
 
   const filterOptions = [
     { id: "all", label: "All Loans", icon: <Briefcase size={16} /> },
@@ -868,6 +872,7 @@ export default function Dashboard() {
             profileData={profileData}
             setProfileData={setProfileData}
             onUpdate={updateProfile}
+            onClose={() => setShowProfilePopup(false)}
           />
 
           <LoggedInDashboard
@@ -882,7 +887,7 @@ export default function Dashboard() {
     );
   }
 
-  // ── Not logged in → original landing page ──
+  if (loggedIn === null) return null;
   return (
     <div className="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       {/* Hero Section */}
