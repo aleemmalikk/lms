@@ -1,10 +1,10 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { BASE_URL } from "@/app/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 
 export default function Step3Employment({ form, setForm, prev, authToken }) {
   const [errors, setErrors] = useState({});
@@ -12,6 +12,8 @@ export default function Step3Employment({ form, setForm, prev, authToken }) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [customerId, setCustomerId] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const router = useRouter();
+
 
   // Get employment fields based on type
   const getEmploymentFields = () => {
@@ -41,6 +43,17 @@ export default function Step3Employment({ form, setForm, prev, authToken }) {
         return [];
     }
   };
+
+
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => {
+        router.push("/loan-eligibility?autoCheck=true");
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccess]);
 
   // Validate Aadhaar
   const validateAadhaar = (value) => {
@@ -412,15 +425,21 @@ export default function Step3Employment({ form, setForm, prev, authToken }) {
               <p className="text-4xl font-bold tracking-wider">{customerId}</p>
             </motion.div>
 
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              onClick={() => window.location.href = "/"}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
-            >
-              Go to Dashboard
-            </motion.button>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => router.push("/loan-eligibility?autoCheck=true")}
+                className="bg-green-600 text-white px-6 py-3 rounded-lg"
+              >
+                Check Eligibility
+              </button>
+
+              <button
+                onClick={() => router.push("/dashboard")}
+                className="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg"
+              >
+                Go to Dashboard
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

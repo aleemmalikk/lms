@@ -6,14 +6,17 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import Step1Personal from "./profileupdate/Step1Personal";
 import Step2Address from "./profileupdate/Step2Address";
 import Step3Employment from "./profileupdate/Step3Employment";
+import { useRouter } from "next/navigation";
 
 export default function ProfileCompletionPopup({
   open,
   profileData,
   setProfileData,
   onUpdate,
-  onClose
+  onClose,
+  onComplete // New callback for when profile is completed
 }) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,8 +56,23 @@ export default function ProfileCompletionPopup({
 
   const handleUpdate = async () => {
     setIsSubmitting(true);
-    await onUpdate();
-    setIsSubmitting(false);
+    try {
+      await onUpdate();
+
+      // Call onComplete callback if provided
+      if (onComplete) {
+        setTimeout(() => {
+          onComplete();
+        }, 500);
+      } else {
+        // Default redirect to eligibility page
+        router.push('/loan-eligibility');
+      }
+    } catch (error) {
+      console.error("Profile update failed:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -107,14 +125,13 @@ export default function ProfileCompletionPopup({
               </div>
             ))}
           </div>
-          
+
           <div className="flex justify-between px-1 mt-2">
             {steps.map((s) => (
               <span
                 key={s.number}
-                className={`text-xs font-medium ${
-                  step >= s.number ? "text-indigo-600" : "text-gray-400"
-                }`}
+                className={`text-xs font-medium ${step >= s.number ? "text-indigo-600" : "text-gray-400"
+                  }`}
               >
                 {s.title}
               </span>

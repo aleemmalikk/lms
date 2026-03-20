@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { BASE_URL } from "@/app/lib/api";
 import {
@@ -14,6 +14,7 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
   const [errors, setErrors] = useState({});
   const [loadingPAN, setLoadingPAN] = useState(false);
   const [panVerified, setPanVerified] = useState(false);
+  const dob = form.dob || form.date_of_birth;
 
   const getToken = () => {
     if (typeof window === "undefined") return null;
@@ -63,6 +64,21 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
     }
   };
 
+
+  useEffect(() => {
+    const pan = form.pan || form.pan_number;
+    if (pan && pan.length === 10 && (form.name || form.first_name)) {
+      setPanVerified(true);
+    }
+
+    if (!form.name && form.first_name) {
+      setForm((prev) => ({
+        ...prev,
+        name: `${form.first_name || ""} ${form.last_name || ""}`.trim()
+      }));
+    }
+  }, [form]);
+
   const validatePAN = (pan) => {
     if (!pan) return "PAN required";
     const regex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
@@ -76,13 +92,23 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
 
     setForm({
       ...form,
-      [name]: formattedValue
+      [name === "pan" ? "pan_number" : name]: formattedValue
     });
 
     if (name === "pan") {
       setPanVerified(false);
+
+      const existingPan = form.pan_number || form.pan;
+
+      // ✅ same PAN → skip API
+      if (existingPan === formattedValue && form.name) {
+        setPanVerified(true);
+        return;
+      }
+
       if (formattedValue.length === 10) {
         const error = validatePAN(formattedValue);
+
         if (!error) {
           await verifyPAN(formattedValue);
         } else {
@@ -104,7 +130,7 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
     return age;
   };
 
-  const age = calculateAge(form.dob);
+  const age = calculateAge(form.dob || form.date_of_birth);
 
   return (
     <div className="w-full">
@@ -113,7 +139,6 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
       </h2>
 
       <div className="space-y-4">
-        {/* PAN */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             PAN Card Number <span className="text-red-500">*</span>
@@ -123,7 +148,7 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
             <input
               type="text"
               name="pan"
-              value={form.pan || ""}
+              value={form.pan || form.pan_number || ""}
               onChange={handleChange}
               maxLength={10}
               placeholder="ABCDE1234F"
@@ -150,7 +175,10 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
             <UserIcon className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              value={form.name || ""}
+              value={
+                form.name ||
+                `${form.first_name || ""} ${form.last_name || ""}`.trim()
+              }
               disabled
               placeholder="Auto filled from PAN"
               className="w-full pl-10 py-3 border rounded-lg bg-gray-100 text-gray-600"
@@ -168,8 +196,13 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
             <input
               type="date"
               name="dob"
-              value={form.dob || ""}
-              onChange={(e) => setForm({ ...form, dob: e.target.value })}
+              value={form.dob || form.date_of_birth || ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  date_of_birth: e.target.value
+                })
+              }
               className="w-full pl-10 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
@@ -191,12 +224,11 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
           </button>
           <button
             onClick={next}
-            disabled={!panVerified || !form.dob}
-            className={`flex-1 py-3 rounded-lg text-white font-medium transition-all ${
-              panVerified && form.dob
+            disabled={!panVerified || !dob}
+            className={`flex-1 py-3 rounded-lg text-white font-medium transition-all ${panVerified && dob
                 ? "bg-indigo-600 hover:bg-indigo-700"
                 : "bg-gray-400 cursor-not-allowed"
-            }`}
+              }`}
           >
             Continue
             <ArrowRightIcon className="w-4 h-4 inline ml-1" />
