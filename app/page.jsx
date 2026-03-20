@@ -720,7 +720,6 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
   );
 }
 
-// ─── Main Dashboard Component ─────────────────────────────────────────────────
 
 export default function Dashboard() {
   const router = useRouter();
@@ -774,7 +773,7 @@ export default function Dashboard() {
   }, [loggedIn]);
 
   useEffect(() => {
-    if (!loggedIn) {
+    if (loggedIn) {
       checkProfile();
     }
   }, [loggedIn]);
@@ -817,14 +816,25 @@ export default function Dashboard() {
   const checkProfile = async () => {
     try {
       const token = localStorage.getItem("access_token");
+
       const res = await axios.get(`${BASE_URL}users/my_profile/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       const user = res.data;
       setProfileData(user);
-      if (!loggedIn && (!user.pan_number || !user.monthly_income)) {
+
+      // 🔥 MAIN LOGIC
+      if (
+        !user.pan_number ||
+        !user.monthly_income ||
+        !user.cibil_score
+      ) {
         setShowProfilePopup(true);
+      } else {
+        setShowProfilePopup(false);
       }
+
     } catch (err) {
       console.log("Profile fetch error", err);
     }
@@ -838,6 +848,7 @@ export default function Dashboard() {
         {
           pan_number: profileData.pan_number,
           monthly_income: profileData.monthly_income,
+          cibil_score: profileData.cibil_score,
         },
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -851,11 +862,68 @@ export default function Dashboard() {
   // ── If logged in → show analytics dashboard ──
   if (loggedIn) {
     return (
-      <LoggedInDashboard
-        loanProducts={loanProducts}
-        loading={loading}
-        error={error}
-      />
+      <>
+        {/* 🔥 PROFILE POPUP */}
+        {showProfilePopup && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-xl">
+              <h2 className="text-xl font-bold mb-4 text-center">
+                Complete Your Profile ⚡
+              </h2>
+
+              <input
+                placeholder="PAN Number"
+                value={profileData.pan_number || ""}
+                onChange={(e) =>
+                  setProfileData({
+                    ...profileData,
+                    pan_number: e.target.value,
+                  })
+                }
+                className="w-full border p-3 rounded-xl mb-3"
+              />
+
+              <input
+                placeholder="Monthly Income"
+                value={profileData.monthly_income || ""}
+                onChange={(e) =>
+                  setProfileData({
+                    ...profileData,
+                    monthly_income: e.target.value,
+                  })
+                }
+                className="w-full border p-3 rounded-xl mb-3"
+              />
+
+              <input
+                placeholder="CIBIL Score"
+                value={profileData.cibil_score || ""}
+                onChange={(e) =>
+                  setProfileData({
+                    ...profileData,
+                    cibil_score: e.target.value,
+                  })
+                }
+                className="w-full border p-3 rounded-xl mb-4"
+              />
+
+              <button
+                onClick={updateProfile}
+                className="w-full bg-indigo-600 text-white py-2 rounded-xl"
+              >
+                Update Profile
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ✅ DASHBOARD */}
+        <LoggedInDashboard
+          loanProducts={loanProducts}
+          loading={loading}
+          error={error}
+        />
+      </>
     );
   }
 
@@ -996,11 +1064,10 @@ export default function Dashboard() {
                 setFilter(option.id);
                 setActiveCategory(option.id);
               }}
-              className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border font-semibold text-sm transition-all hover:-translate-y-0.5 ${
-                filter === option.id
-                  ? "bg-blue-500 border-blue-500 text-white"
-                  : "bg-white border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600"
-              }`}
+              className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border font-semibold text-sm transition-all hover:-translate-y-0.5 ${filter === option.id
+                ? "bg-blue-500 border-blue-500 text-white"
+                : "bg-white border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600"
+                }`}
             >
               {option.icon}
               <span>{option.label}</span>
@@ -1220,45 +1287,7 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-
-          {/* Profile Popup - Only shows for NON-logged in users */}
-          {!loggedIn && showProfilePopup && (
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded-2xl w-full max-w-md shadow-xl">
-                <h2 className="text-xl font-bold mb-4 text-center">
-                  Complete Your Profile ⚡
-                </h2>
-                <input
-                  placeholder="PAN Number"
-                  value={profileData.pan_number || ""}
-                  onChange={(e) =>
-                    setProfileData({
-                      ...profileData,
-                      pan_number: e.target.value,
-                    })
-                  }
-                  className="w-full border p-3 rounded-xl mb-3"
-                />
-                <input
-                  placeholder="Monthly Income"
-                  value={profileData.monthly_income || ""}
-                  onChange={(e) =>
-                    setProfileData({
-                      ...profileData,
-                      monthly_income: e.target.value,
-                    })
-                  }
-                  className="w-full border p-3 rounded-xl mb-4"
-                />
-                <button
-                  onClick={updateProfile}
-                  className="w-full bg-indigo-600 text-white py-2 rounded-xl"
-                >
-                  Update Profile
-                </button>
-              </div>
-            </div>
-          )}
+          
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
             <p>
