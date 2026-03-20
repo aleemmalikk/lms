@@ -181,11 +181,11 @@ export default function Sidebar({
     //   path: "/useronboarding",
     //   icon: <FaChartLine size={18} />,
     // },
-    {
-      label: "Profile",
-      path: "/profile",
-      icon: <FaUserCircle size={18} />,
-    },
+    // {
+    //   label: "Profile",
+    //   path: "/profile",
+    //   icon: <FaUserCircle size={18} />,
+    // },
     {
       label: "Credit Reports",
       path: "/credit-report",

@@ -90,21 +90,22 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
     const { name, value } = e.target;
     const formattedValue = name === "pan" ? value.toUpperCase() : value;
 
-    setForm({
-      ...form,
-      [name === "pan" ? "pan_number" : name]: formattedValue
-    });
+    if (name === "pan") {
+      setForm((prev) => ({
+        ...prev,
+        pan: formattedValue,          // ✅ ALWAYS keep pan
+        pan_number: formattedValue,   // ✅ backend field
+      }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: formattedValue
+      }));
+    }
 
+    // PAN verification logic same
     if (name === "pan") {
       setPanVerified(false);
-
-      const existingPan = form.pan_number || form.pan;
-
-      // ✅ same PAN → skip API
-      if (existingPan === formattedValue && form.name) {
-        setPanVerified(true);
-        return;
-      }
 
       if (formattedValue.length === 10) {
         const error = validatePAN(formattedValue);
@@ -226,8 +227,8 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
             onClick={next}
             disabled={!panVerified || !dob}
             className={`flex-1 py-3 rounded-lg text-white font-medium transition-all ${panVerified && dob
-                ? "bg-indigo-600 hover:bg-indigo-700"
-                : "bg-gray-400 cursor-not-allowed"
+              ? "bg-indigo-600 hover:bg-indigo-700"
+              : "bg-gray-400 cursor-not-allowed"
               }`}
           >
             Continue
