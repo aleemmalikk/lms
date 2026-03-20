@@ -369,7 +369,7 @@ export default function OnboardingForm() {
           <div className="space-y-4">
             <input
               name="name"
-              placeholder="Enter name link with PAN Card"
+              placeholder="Enter Name Link With PAN CARD"
               value={form.name}
               onChange={handleChange}
               className="w-full border p-3 rounded-xl"
@@ -392,7 +392,7 @@ export default function OnboardingForm() {
               <>
                 <input
                   name="mobile"
-                  placeholder="Mobile number link with Aadhar Card"
+                  placeholder="Mobile Number Link With Aadhar Card"
                   value={form.mobile}
                   onChange={handleChange}
                   className="w-full border p-3 rounded-xl"
