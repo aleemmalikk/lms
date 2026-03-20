@@ -845,20 +845,35 @@ export default function Dashboard() {
   const updateProfile = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      await axios.patch(
+
+      // ✅ IMPORTANT: Saare fields bhejo jo steps mein collect hue hain
+      const response = await axios.patch(
         `${BASE_URL}users/update_profile/`,
+        profileData,  // Directly profileData bhejo - isme saare fields hain
         {
-          pan_number: profileData.pan_number,
-          monthly_income: profileData.monthly_income,
-          cibil_score: profileData.cibil_score,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         },
-        { headers: { Authorization: `Bearer ${token}` } },
       );
-      alert("Profile Updated");
+
+      console.log("Profile updated successfully:", response.data);
+
+      // Popup band karo
       setShowProfilePopup(false);
+
+      // Success message
+      alert("Profile Updated Successfully! 🎉");
+
     } catch (err) {
-      alert("Failed to update profile");
+      console.error("Update error:", err.response?.data || err);
+      alert("Failed to update profile: " + (err.response?.data?.message || err.message));
     }
+  };
+
+  const handleProfileComplete = () => {
+    router.push('/loan-eligibility?autoCheck=true');
   };
 
   if (loggedIn) {
@@ -871,6 +886,7 @@ export default function Dashboard() {
             setProfileData={setProfileData}
             onUpdate={updateProfile}
             onClose={() => setShowProfilePopup(false)}
+            onComplete={handleProfileComplete}
           />
 
           <LoggedInDashboard
