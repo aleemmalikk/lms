@@ -161,34 +161,32 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
 
   const colorMap = {
     blue: {
-      bg: "bg-blue-50 dark:bg-blue-900/20",
-      icon: "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400",
-      badge: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50",
+      icon: "bg-blue-100 text-blue-600",
+      badge: "text-blue-600",
     },
     cyan: {
-      bg: "bg-cyan-50 dark:bg-cyan-900/20",
-      icon: "bg-cyan-100 dark:bg-cyan-900/50 text-cyan-600 dark:text-cyan-400",
-      badge: "text-cyan-600 dark:text-cyan-400",
+      bg: "bg-cyan-50",
+      icon: "bg-cyan-100 text-cyan-600",
+      badge: "text-cyan-600",
     },
     emerald: {
-      bg: "bg-emerald-50 dark:bg-emerald-900/20",
-      icon: "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400",
-      badge: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50",
+      icon: "bg-emerald-100 text-emerald-600",
+      badge: "text-emerald-600",
     },
     violet: {
-      bg: "bg-violet-50 dark:bg-violet-900/20",
-      icon: "bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400",
-      badge: "text-violet-600 dark:text-violet-400",
+      bg: "bg-violet-50",
+      icon: "bg-violet-100 text-violet-600",
+      badge: "text-violet-600",
     },
   };
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-xl text-sm">
-          <p className="font-semibold text-gray-700 dark:text-gray-200 mb-1">
-            {label}
-          </p>
+        <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-xl text-sm">
+          <p className="font-semibold text-gray-700 mb-1">{label}</p>
           {payload.map((p, i) => (
             <p key={i} style={{ color: p.color }} className="font-medium">
               {p.name}: {p.value}
@@ -201,21 +199,7 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors mt-0">
-      {/* ── Top greeting bar ── */}
-      {/* <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-6 md:px-10">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-blue-200 text-sm font-medium mb-0.5">
-              Welcome back 👋
-            </p>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-              Loan Dashboard
-            </h1>
-          </div>
-        </div>
-      </div> */}
-
+    <div className="min-h-screen bg-gray-50 transition-colors mt-0">
       <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* ── KPI Cards ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -224,17 +208,17 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
             return (
               <div
                 key={i}
-                className={`${c.bg} rounded-2xl p-5 border border-transparent hover:border-blue-300 dark:hover:border-blue-700 transition-all hover:-translate-y-0.5 shadow-sm`}
+                className={`${c.bg} rounded-2xl p-5 border border-transparent hover:border-blue-300 transition-all hover:-translate-y-0.5 shadow-sm`}
               >
                 <div
                   className={`w-11 h-11 rounded-xl ${c.icon} flex items-center justify-center mb-3`}
                 >
                   {kpi.icon}
                 </div>
-                <div className="text-2xl font-extrabold text-gray-900 dark:text-white mb-0.5">
+                <div className="text-2xl font-extrabold text-gray-900 mb-0.5">
                   {kpi.value}
                 </div>
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                <div className="text-xs font-semibold text-gray-500 mb-1">
                   {kpi.label}
                 </div>
                 <div
@@ -255,21 +239,18 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
         {/* ── Row 1: Disbursal Trend + Loan Type Pie ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Disbursal Area Chart */}
-          <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                <h3 className="text-base font-bold text-gray-900">
                   Monthly Disbursal Trend
                 </h3>
                 <p className="text-xs text-gray-400 mt-0.5">
                   Crores ₹ disbursed per month
                 </p>
               </div>
-              <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                <Activity
-                  size={18}
-                  className="text-blue-600 dark:text-blue-400"
-                />
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <Activity size={18} className="text-blue-600" />
               </div>
             </div>
             <ResponsiveContainer width="100%" height={220}>
@@ -317,21 +298,18 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
           </div>
 
           {/* Loan Type Pie */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                <h3 className="text-base font-bold text-gray-900">
                   Loan Type Mix
                 </h3>
                 <p className="text-xs text-gray-400 mt-0.5">
                   Distribution by type
                 </p>
               </div>
-              <div className="p-2 bg-violet-50 dark:bg-violet-900/30 rounded-lg">
-                <PieChart
-                  size={18}
-                  className="text-violet-600 dark:text-violet-400"
-                />
+              <div className="p-2 bg-violet-50 rounded-lg">
+                <PieChart size={18} className="text-violet-600" />
               </div>
             </div>
             <ResponsiveContainer width="100%" height={160}>
@@ -356,14 +334,14 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
               {loanTypeDistribution.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400"
+                  className="flex items-center gap-1.5 text-xs text-gray-600"
                 >
                   <span
                     className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                     style={{ background: item.color }}
                   />
                   {item.name}{" "}
-                  <span className="ml-auto font-semibold text-gray-800 dark:text-gray-200">
+                  <span className="ml-auto font-semibold text-gray-800">
                     {item.value}%
                   </span>
                 </div>
@@ -375,21 +353,18 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
         {/* ── Row 2: Interest Rate Bar + Approval Radial ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Interest Rate Range */}
-          <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                <h3 className="text-base font-bold text-gray-900">
                   Interest Rate Range by Loan Type
                 </h3>
                 <p className="text-xs text-gray-400 mt-0.5">
                   Min & Max rates (%)
                 </p>
               </div>
-              <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
-                <Percent
-                  size={18}
-                  className="text-emerald-600 dark:text-emerald-400"
-                />
+              <div className="p-2 bg-emerald-50 rounded-lg">
+                <Percent size={18} className="text-emerald-600" />
               </div>
             </div>
             {interestRateComparison.length > 0 ? (
@@ -435,15 +410,15 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
           </div>
 
           {/* Approval Stats Radial */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                <h3 className="text-base font-bold text-gray-900">
                   Approval Status
                 </h3>
                 <p className="text-xs text-gray-400 mt-0.5">Current cycle</p>
               </div>
-              <div className="p-2 bg-orange-50 dark:bg-orange-900/30 rounded-lg">
+              <div className="p-2 bg-orange-50 rounded-lg">
                 <CheckCircle size={18} className="text-orange-500" />
               </div>
             </div>
@@ -482,13 +457,9 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
                       className="w-2.5 h-2.5 rounded-full"
                       style={{ background: s.fill }}
                     />
-                    <span className="text-gray-600 dark:text-gray-400">
-                      {s.name}
-                    </span>
+                    <span className="text-gray-600">{s.name}</span>
                   </div>
-                  <span className="font-bold text-gray-800 dark:text-gray-200">
-                    {s.value}%
-                  </span>
+                  <span className="font-bold text-gray-800">{s.value}%</span>
                 </div>
               ))}
             </div>
@@ -498,19 +469,16 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
         {/* ── Row 3: Loan Amount Range Bar + EMI Line ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Loan Amount Range */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                <h3 className="text-base font-bold text-gray-900">
                   Loan Amount Range
                 </h3>
                 <p className="text-xs text-gray-400 mt-0.5">In Lakhs (₹)</p>
               </div>
-              <div className="p-2 bg-cyan-50 dark:bg-cyan-900/30 rounded-lg">
-                <IndianRupee
-                  size={18}
-                  className="text-cyan-600 dark:text-cyan-400"
-                />
+              <div className="p-2 bg-cyan-50 rounded-lg">
+                <IndianRupee size={18} className="text-cyan-600" />
               </div>
             </div>
             {amountRange.length > 0 ? (
@@ -563,17 +531,17 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
           </div>
 
           {/* EMI vs Tenure */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                <h3 className="text-base font-bold text-gray-900">
                   EMI vs Tenure
                 </h3>
                 <p className="text-xs text-gray-400 mt-0.5">
                   For ₹1L personal loan at 10.5%
                 </p>
               </div>
-              <div className="p-2 bg-rose-50 dark:bg-rose-900/30 rounded-lg">
+              <div className="p-2 bg-rose-50 rounded-lg">
                 <Clock size={18} className="text-rose-500" />
               </div>
             </div>
@@ -610,22 +578,16 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
         </div>
 
         {/* ── Loan Products Table ── */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-gray-800">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
             <div>
-              <h3 className="text-base font-bold text-gray-900 dark:text-white">
+              <h3 className="text-base font-bold text-gray-900">
                 All Loan Products
               </h3>
               <p className="text-xs text-gray-400 mt-0.5">
                 {loanProducts.length} products available
               </p>
             </div>
-            {/* <Link
-              href="/apply"
-              className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-full hover:bg-blue-700 transition-colors inline-flex items-center gap-1.5"
-            >
-              Apply <ArrowRight size={12} />
-            </Link> */}
           </div>
           {loading ? (
             <div className="flex items-center justify-center py-16">
@@ -635,7 +597,7 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 dark:bg-gray-800/60">
+                  <tr className="bg-gray-50">
                     {[
                       "Product",
                       "Type",
@@ -645,21 +607,21 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
                     ].map((h, i) => (
                       <th
                         key={i}
-                        className="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                        className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
                       >
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                <tbody className="divide-y divide-gray-100">
                   {loanProducts.map((loan, i) => (
                     <tr
                       key={loan.id}
-                      className="hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-colors"
+                      className="hover:bg-blue-50/40 transition-colors"
                     >
                       <td className="px-5 py-4">
-                        <div className="font-semibold text-gray-900 dark:text-white">
+                        <div className="font-semibold text-gray-900">
                           {loan.name}
                         </div>
                         <div className="text-xs text-gray-400 mt-0.5 line-clamp-1">
@@ -667,17 +629,17 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
                         </div>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold rounded-full">
+                        <span className="px-2.5 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
                           {loan.loan_type || "Loan"}
                         </span>
                       </td>
-                      <td className="px-5 py-4 font-medium text-gray-700 dark:text-gray-300">
+                      <td className="px-5 py-4 font-medium text-gray-700">
                         ₹{loan.min_amount?.toLocaleString() || "50K"} – ₹
                         {loan.max_amount?.toLocaleString() || "50L"}
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 w-20">
+                          <div className="flex-1 bg-gray-100 rounded-full h-1.5 w-20">
                             <div
                               className="bg-gradient-to-r from-emerald-400 to-blue-500 h-1.5 rounded-full"
                               style={{
@@ -685,20 +647,13 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
                               }}
                             />
                           </div>
-                          <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                          <span className="text-xs font-bold text-gray-700">
                             {loan.min_interest_rate || "7.5"}%–
                             {loan.max_interest_rate || "15"}%
                           </span>
                         </div>
                       </td>
-                      <td className="px-5 py-4">
-                        {/* <Link
-                          href={`/apply?loan=${loan.id}`}
-                          className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-1"
-                        >
-                          Apply <ArrowRight size={11} />
-                        </Link> */}
-                      </td>
+                      <td className="px-5 py-4"></td>
                     </tr>
                   ))}
                   {loanProducts.length === 0 && (
@@ -720,7 +675,6 @@ function LoggedInDashboard({ loanProducts, loading, error }) {
     </div>
   );
 }
-
 
 export default function Dashboard() {
   const router = useRouter();
@@ -748,6 +702,25 @@ export default function Dashboard() {
       "Vehicle Loan": <Car size={24} />,
       "Gold Loan": <Gem size={24} />,
     })[type] || <Briefcase size={24} />;
+
+  // FORCE LIGHT MODE - Remove dark class and prevent dark mode
+  useEffect(() => {
+    // Force remove dark class from html element
+    document.documentElement.classList.remove("dark");
+
+    // Add a class to body to identify this page
+    document.body.classList.add("force-light-mode-page");
+
+    // Store original classes to restore later if needed
+    const originalClasses = document.documentElement.className;
+
+    // Cleanup when component unmounts
+    return () => {
+      document.body.classList.remove("force-light-mode-page");
+      // Optionally restore original classes if needed
+      // document.documentElement.className = originalClasses;
+    };
+  }, []);
 
   useEffect(() => {
     const fetchLoanProducts = async () => {
@@ -810,14 +783,6 @@ export default function Dashboard() {
     return matchesFilter && matchesSearch;
   });
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [darkMode]);
-
   const checkProfile = async () => {
     try {
       const token = localStorage.getItem("access_token");
@@ -831,12 +796,15 @@ export default function Dashboard() {
 
       // Check if ALL required fields are present and not empty
       const isProfileComplete =
-        user.pan_number && user.pan_number.trim() !== "" &&
-        user.monthly_income && user.monthly_income !== "0" && user.monthly_income !== "" &&
-        user.cibil_score && user.cibil_score !== "";
+        user.pan_number &&
+        user.pan_number.trim() !== "" &&
+        user.monthly_income &&
+        user.monthly_income !== "0" &&
+        user.monthly_income !== "" &&
+        user.cibil_score &&
+        user.cibil_score !== "";
 
       setShowProfilePopup(!isProfileComplete);
-
     } catch (err) {
       console.log("Profile fetch error", err);
     }
@@ -846,83 +814,78 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem("access_token");
 
-      // ✅ IMPORTANT: Saare fields bhejo jo steps mein collect hue hain
       const response = await axios.patch(
         `${BASE_URL}users/update_profile/`,
-        profileData,  // Directly profileData bhejo - isme saare fields hain
+        profileData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         },
       );
 
       console.log("Profile updated successfully:", response.data);
 
-      // Popup band karo
       setShowProfilePopup(false);
 
-      // Success message
       alert("Profile Updated Successfully! 🎉");
-
     } catch (err) {
       console.error("Update error:", err.response?.data || err);
-      alert("Failed to update profile: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to update profile: " +
+          (err.response?.data?.message || err.message),
+      );
     }
   };
 
   const handleProfileComplete = () => {
-    router.push('/loan-eligibility?autoCheck=true');
+    router.push("/loan-eligibility?autoCheck=true");
   };
 
   if (loggedIn) {
     return (
       <>
-        <>
-          <ProfileCompletionPopup
-            open={showProfilePopup}
-            profileData={profileData}
-            setProfileData={setProfileData}
-            onUpdate={updateProfile}
-            onClose={() => setShowProfilePopup(false)}
-            onComplete={handleProfileComplete}
-          />
+        <ProfileCompletionPopup
+          open={showProfilePopup}
+          profileData={profileData}
+          setProfileData={setProfileData}
+          onUpdate={updateProfile}
+          onClose={() => setShowProfilePopup(false)}
+          onComplete={handleProfileComplete}
+        />
 
-          <LoggedInDashboard
-            loanProducts={loanProducts}
-            loading={loading}
-            error={error}
-          />
-        </>
-
-
+        <LoggedInDashboard
+          loanProducts={loanProducts}
+          loading={loading}
+          error={error}
+        />
       </>
     );
   }
 
   if (loggedIn === null) return null;
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="bg-gray-50 transition-colors duration-300">
       {/* Hero Section */}
-      <section className="relative flex items-center px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-r from-gray-50 via-blue-50 to-gray-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-gray-900 bg-[length:200%_200%] animate-gradient">
+      <section className="relative flex items-center px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-r from-gray-50 via-blue-50 to-gray-50 bg-[length:200%_200%] animate-gradient">
         <div className="absolute w-[600px] h-[600px] rounded-full bg-gradient-to-r from-blue-500/10 to-transparent -top-48 -right-24 animate-float" />
         <div className="absolute w-[400px] h-[400px] rounded-full bg-gradient-to-r from-purple-500/10 to-transparent -bottom-24 -left-24 animate-float-delayed" />
 
         <div className="relative z-10 max-w-3xl animate-fadeInUp md:mt-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-600 dark:text-blue-400 text-sm font-semibold backdrop-blur-md mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-blue-600 text-sm font-semibold backdrop-blur-md mb-8">
             <Sparkles size={16} />
             <span>RBI Registered | 100% Secure</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
             Smart Loans for <br />
             <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
               Smart People
             </span>
           </h1>
 
-          <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed mb-8 max-w-xl">
+          <p className="text-lg text-gray-600 leading-relaxed mb-8 max-w-xl">
             Discover loans with zero hidden charges, instant approval, and
             flexible repayment options tailored to your needs.
           </p>
@@ -942,7 +905,7 @@ export default function Dashboard() {
                 className="group-hover:translate-x-1 transition-transform"
               />
             </button>
-            <button className="px-8 py-3 bg-transparent border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white font-semibold rounded-full hover:border-blue-400 hover:bg-blue-500/10 transition-all">
+            <button className="px-8 py-3 bg-transparent border-2 border-gray-300 text-gray-900 font-semibold rounded-full hover:border-blue-400 hover:bg-blue-500/10 transition-all">
               Watch Demo
             </button>
           </div>
@@ -954,12 +917,10 @@ export default function Dashboard() {
               { value: "4.8★", label: "Customer Rating" },
             ].map((stat, i) => (
               <div key={i} className="text-center">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+                <div className="text-2xl font-bold text-blue-600 mb-1">
                   {stat.value}
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  {stat.label}
-                </div>
+                <div className="text-sm text-gray-500">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -987,17 +948,15 @@ export default function Dashboard() {
           ].map((card, i) => (
             <div
               key={i}
-              className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-md p-4 rounded-xl border border-blue-500/20 shadow-xl hover:border-blue-400 transition-all hover:-translate-x-2 ${card.offset || ""}`}
+              className={`bg-white/90 backdrop-blur-md p-4 rounded-xl border border-blue-500/20 shadow-xl hover:border-blue-400 transition-all hover:-translate-x-2 ${card.offset || ""}`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
                   {card.icon}
                 </div>
                 <div>
-                  <h4 className="text-sm text-gray-500 dark:text-gray-400">
-                    {card.title}
-                  </h4>
-                  <p className="text-base font-semibold text-gray-900 dark:text-white">
+                  <h4 className="text-sm text-gray-500">{card.title}</h4>
+                  <p className="text-base font-semibold text-gray-900">
                     {card.value}
                   </p>
                 </div>
@@ -1038,10 +997,11 @@ export default function Dashboard() {
                 setFilter(option.id);
                 setActiveCategory(option.id);
               }}
-              className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border font-semibold text-sm transition-all hover:-translate-y-0.5 ${filter === option.id
-                ? "bg-blue-500 border-blue-500 text-white"
-                : "bg-white border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600"
-                }`}
+              className={`inline-flex items-center gap-2 px-5 py-2 rounded-full border font-semibold text-sm transition-all hover:-translate-y-0.5 ${
+                filter === option.id
+                  ? "bg-blue-500 border-blue-500 text-white"
+                  : "bg-white border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600"
+              }`}
             >
               {option.icon}
               <span>{option.label}</span>
@@ -1053,10 +1013,10 @@ export default function Dashboard() {
       {/* Products Section */}
       <section id="products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
             Featured Loan Products
           </h2>
-          <p className="text-lg text-blue-600 dark:text-blue-800 max-w-2xl mx-auto">
+          <p className="text-lg text-blue-600 max-w-2xl mx-auto">
             Choose from our wide range of loan products designed to meet your
             specific needs
           </p>
@@ -1064,8 +1024,8 @@ export default function Dashboard() {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-blue-500 rounded-full animate-spin" />
-            <p className="mt-4 text-gray-500 dark:text-gray-400">
+            <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
+            <p className="mt-4 text-gray-500">
               Loading amazing loans for you...
             </p>
           </div>
@@ -1076,7 +1036,7 @@ export default function Dashboard() {
         ) : (
           <>
             {searchQuery && (
-              <div className="text-center mb-8 text-gray-500 dark:text-gray-400">
+              <div className="text-center mb-8 text-gray-500">
                 Found <strong>{filtered.length}</strong> results for "
                 {searchQuery}"
               </div>
@@ -1089,10 +1049,10 @@ export default function Dashboard() {
             {filtered.length === 0 && (
               <div className="text-center py-16">
                 <div className="text-5xl mb-4">🔍</div>
-                <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
                   No loans found
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400">
+                <p className="text-gray-500">
                   Try adjusting your search or filter.
                 </p>
               </div>
@@ -1102,13 +1062,13 @@ export default function Dashboard() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-100 dark:bg-gray-800">
+      <section className="py-20 bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
               Why Choose Us
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               We're committed to providing the best loan experience with
               transparency and speed
             </p>
@@ -1148,15 +1108,15 @@ export default function Dashboard() {
             ].map((feature, i) => (
               <div
                 key={i}
-                className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:shadow-xl hover:-translate-y-1 transition-all"
+                className="bg-white p-6 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-xl hover:-translate-y-1 transition-all"
               >
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4">
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white text-center mb-2">
+                <h3 className="text-lg font-bold text-gray-900 text-center mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                <p className="text-sm text-gray-500 text-center">
                   {feature.desc}
                 </p>
               </div>
@@ -1261,7 +1221,6 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
             <p>
@@ -1434,6 +1393,25 @@ export default function Dashboard() {
         .animate-fadeInUp {
           animation: fadeInUp 1s ease-out;
         }
+
+        /* Force light mode styles */
+        .force-light-mode-page {
+          color-scheme: light;
+        }
+
+        /* Override any dark mode classes */
+        .force-light-mode-page .dark\:bg-gray-900,
+        .force-light-mode-page .dark\:bg-gray-800,
+        .force-light-mode-page .dark\:bg-gray-950,
+        .force-light-mode-page .dark\:text-white,
+        .force-light-mode-page .dark\:text-gray-300,
+        .force-light-mode-page .dark\:text-gray-400,
+        .force-light-mode-page .dark\:border-gray-700,
+        .force-light-mode-page .dark\:border-gray-800 {
+          background-color: transparent !important;
+          color: inherit !important;
+          border-color: inherit !important;
+        }
       `}</style>
     </div>
   );
@@ -1484,7 +1462,7 @@ function ProductCard({ loan, index }) {
 
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:-translate-y-2 hover:scale-[1.02] hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 animate-fadeInUp"
+      className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:-translate-y-2 hover:scale-[1.02] hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 animate-fadeInUp"
       style={{ animationDelay: `${index * 0.1}s` }}
     >
       <div
@@ -1496,35 +1474,33 @@ function ProductCard({ loan, index }) {
         </span>
       </div>
       <div className="relative px-6 pb-6">
-        <div className="absolute -top-6 left-6 w-14 h-14 rounded-lg bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center shadow-lg">
+        <div className="absolute -top-6 left-6 w-14 h-14 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center shadow-lg">
           <div className={`text-${scheme.to.replace("to-", "")}`}>
             {scheme.icon}
           </div>
         </div>
         <div className="pt-8">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-            {loan.name}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">
+          <h3 className="text-lg font-bold text-gray-900 mb-2">{loan.name}</h3>
+          <p className="text-sm text-gray-500 line-clamp-2 mb-4">
             {loan.description || "Flexible loan option with competitive rates"}
           </p>
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-xs font-semibold text-gray-600 dark:text-gray-300">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 border border-gray-200 rounded text-xs font-semibold text-gray-600">
               <Shield size={12} /> Zero Collateral
             </span>
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-xs font-semibold text-gray-600 dark:text-gray-300">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 border border-gray-200 rounded text-xs font-semibold text-gray-600">
               <Zap size={12} /> Instant Approval
             </span>
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-xs font-semibold text-gray-600 dark:text-gray-300">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 border border-gray-200 rounded text-xs font-semibold text-gray-600">
               <Clock size={12} /> Flexible Tenure
             </span>
           </div>
-          <div className="grid grid-cols-2 gap-4 py-4 border-y border-gray-200 dark:border-gray-700 mb-4">
+          <div className="grid grid-cols-2 gap-4 py-4 border-y border-gray-200 mb-4">
             <div className="text-center">
               <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">
                 Amount Range
               </div>
-              <div className="text-sm font-bold text-gray-900 dark:text-white">
+              <div className="text-sm font-bold text-gray-900">
                 ₹{loan.min_amount?.toLocaleString() || "50K"} - ₹
                 {loan.max_amount?.toLocaleString() || "50L"}
               </div>
@@ -1533,23 +1509,17 @@ function ProductCard({ loan, index }) {
               <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">
                 Interest Rate
               </div>
-              <div className="text-sm font-bold text-gray-900 dark:text-white">
+              <div className="text-sm font-bold text-gray-900">
                 {loan.min_interest_rate || "7.5"}% -{" "}
                 {loan.max_interest_rate || "15"}%
               </div>
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
               <Building2 size={14} />
               <span>{loan.branch || "All Branches"}</span>
             </div>
-            {/* <Link
-              href="/apply"
-              className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-blue-400/30 hover:translate-x-1 transition-all"
-            >
-              Apply <ArrowRight size={14} />
-            </Link> */}
           </div>
         </div>
       </div>

@@ -7,8 +7,10 @@
   --foreground: #171717;
 }
 
+
 html, body {
   background: #ffffff;
   color: #171717;
   min-height: 100%;
 }
+

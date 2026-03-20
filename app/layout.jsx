@@ -19,9 +19,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <WalletProvider>
-          <LayoutWrapper>
-            {children}
-          </LayoutWrapper>
+          <LayoutWrapper>{children}</LayoutWrapper>
         </WalletProvider>
       </body>
     </html>
