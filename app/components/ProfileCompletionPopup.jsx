@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Step1Personal from "./profileupdate/Step1Personal";
 import Step2Address from "./profileupdate/Step2Address";
@@ -14,7 +15,7 @@ export default function ProfileCompletionPopup({
   setProfileData,
   onUpdate,
   onClose,
-  onComplete // New callback for when profile is completed
+  onComplete, // New callback for when profile is completed
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -36,22 +37,22 @@ export default function ProfileCompletionPopup({
   const steps = [
     { number: 1, title: "Personal Details", icon: "👤" },
     { number: 2, title: "Address Information", icon: "📍" },
-    { number: 3, title: "Employment Details", icon: "💼" }
+    { number: 3, title: "Employment Details", icon: "💼" },
   ];
 
   const pageVariants = {
     enter: (direction) => ({
       x: direction > 0 ? 500 : -500,
-      opacity: 0
+      opacity: 0,
     }),
     center: {
       x: 0,
-      opacity: 1
+      opacity: 1,
     },
     exit: (direction) => ({
       x: direction < 0 ? 500 : -500,
-      opacity: 0
-    })
+      opacity: 0,
+    }),
   };
 
   const handleUpdate = async () => {
@@ -66,7 +67,7 @@ export default function ProfileCompletionPopup({
         }, 500);
       } else {
         // Default redirect to eligibility page
-        router.push('/loan-eligibility');
+        router.push("/loan-eligibility");
       }
     } catch (error) {
       console.error("Profile update failed:", error);
@@ -106,9 +107,10 @@ export default function ProfileCompletionPopup({
               >
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm
-                    ${step >= s.number
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-200 text-gray-600"
+                    ${
+                      step >= s.number
+                        ? "bg-indigo-600 text-white"
+                        : "bg-gray-200 text-gray-600"
                     }`}
                 >
                   {step > s.number ? "✓" : s.icon}
@@ -116,10 +118,7 @@ export default function ProfileCompletionPopup({
                 {index < steps.length - 1 && (
                   <div
                     className={`flex-1 h-1 mx-2 rounded
-                      ${step > s.number
-                        ? "bg-indigo-600"
-                        : "bg-gray-200"
-                      }`}
+                      ${step > s.number ? "bg-indigo-600" : "bg-gray-200"}`}
                   />
                 )}
               </div>
@@ -130,8 +129,9 @@ export default function ProfileCompletionPopup({
             {steps.map((s) => (
               <span
                 key={s.number}
-                className={`text-xs font-medium ${step >= s.number ? "text-indigo-600" : "text-gray-400"
-                  }`}
+                className={`text-xs font-medium ${
+                  step >= s.number ? "text-indigo-600" : "text-gray-400"
+                }`}
               >
                 {s.title}
               </span>
@@ -151,7 +151,7 @@ export default function ProfileCompletionPopup({
               exit="exit"
               transition={{
                 x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 }
+                opacity: { duration: 0.2 },
               }}
             >
               {step === 1 && (
