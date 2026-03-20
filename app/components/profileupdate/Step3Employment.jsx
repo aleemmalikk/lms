@@ -416,7 +416,7 @@ export default function Step3Employment({ form, setForm, prev, authToken }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              onClick={() => window.location.href = "/dashboard"}
+              onClick={() => window.location.href = "/"}
               className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
             >
               Go to Dashboard
