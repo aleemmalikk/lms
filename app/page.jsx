@@ -829,15 +829,13 @@ export default function Dashboard() {
       const user = res.data;
       setProfileData(user);
 
-      if (
-        !user.pan_number ||
-        !user.monthly_income ||
-        !user.cibil_score
-      ) {
-        setShowProfilePopup(true);
-      } else {
-        setShowProfilePopup(false);
-      }
+      // Check if ALL required fields are present and not empty
+      const isProfileComplete =
+        user.pan_number && user.pan_number.trim() !== "" &&
+        user.monthly_income && user.monthly_income !== "0" && user.monthly_income !== "" &&
+        user.cibil_score && user.cibil_score !== "";
+
+      setShowProfilePopup(!isProfileComplete);
 
     } catch (err) {
       console.log("Profile fetch error", err);

@@ -198,10 +198,10 @@ export default function Step2Address({ form, setForm, next, prev }) {
 
 
   const fields = [
-    { name: "pincode", label: "Pincode", icon: MapPinIcon },
-    { name: "city", label: "City", icon: BuildingOfficeIcon },
     { name: "state", label: "State", icon: GlobeAltIcon },
-    { name: "address", label: "Full Address", icon: HomeIcon }
+    { name: "city", label: "City", icon: BuildingOfficeIcon },
+    { name: "address", label: "Full Address", icon: HomeIcon },
+    { name: "pincode", label: "Pincode", icon: MapPinIcon }
   ];
 
 
