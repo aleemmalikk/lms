@@ -305,18 +305,6 @@ export default function ApplicationDetail() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <Link
-                  href="/applications"
-                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-                >
-                  <ArrowLeft size={20} className="text-gray-600" />
-                </Link>
-              </motion.div>
-              
               <div>
                 <div className="flex items-center gap-3">
                   <motion.h1 

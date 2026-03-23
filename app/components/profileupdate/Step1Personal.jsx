@@ -21,6 +21,33 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
     return localStorage.getItem("access_token");
   };
 
+
+
+  const fetchCibil = async () => {
+    try {
+      const token = getToken();
+
+      const res = await axios.post(
+        `${BASE_URL}kyc/check_cibil/`,
+        { pan_number: form.pan_number },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setForm((prev) => ({
+        ...prev,
+        cibil_score: res.data.cibil_score
+      }));
+      
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const verifyPAN = async (pan) => {
     try {
       setLoadingPAN(true);
@@ -49,6 +76,7 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
         }));
         setErrors((prev) => ({ ...prev, pan: "" }));
         setPanVerified(true);
+        await fetchCibil();
       } else {
         setErrors((prev) => ({ ...prev, pan: "Invalid PAN or name not found" }));
       }
@@ -63,6 +91,7 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
       setLoadingPAN(false);
     }
   };
+
 
 
   useEffect(() => {
@@ -93,8 +122,8 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
     if (name === "pan") {
       setForm((prev) => ({
         ...prev,
-        pan: formattedValue,          // ✅ ALWAYS keep pan
-        pan_number: formattedValue,   // ✅ backend field
+        pan: formattedValue,
+        pan_number: formattedValue,
       }));
     } else {
       setForm((prev) => ({
@@ -103,7 +132,6 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
       }));
     }
 
-    // PAN verification logic same
     if (name === "pan") {
       setPanVerified(false);
 
@@ -167,7 +195,6 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
           )}
         </div>
 
-        {/* NAME */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Full Name <span className="text-red-500">*</span>
@@ -187,7 +214,6 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
           </div>
         </div>
 
-        {/* DOB */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Date of Birth <span className="text-red-500">*</span>
@@ -214,7 +240,6 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
           )}
         </div>
 
-        {/* Buttons */}
         <div className="flex gap-3 pt-4">
           <button
             onClick={prev}
