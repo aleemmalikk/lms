@@ -15,7 +15,6 @@ export default function Step3Employment({ form, setForm, prev, authToken }) {
   const router = useRouter();
 
 
-  // Get employment fields based on type
   const getEmploymentFields = () => {
     switch (form.employmentType) {
       case "salaried":
@@ -55,14 +54,12 @@ export default function Step3Employment({ form, setForm, prev, authToken }) {
     }
   }, [showSuccess]);
 
-  // Validate Aadhaar
   const validateAadhaar = (value) => {
     if (!value) return "Aadhaar number is required";
     if (!/^\d{12}$/.test(value)) return "Aadhaar must be exactly 12 digits";
     return "";
   };
 
-  // Validate field
   const validateField = (name, value) => {
     if (!value || value.trim() === "") return `${name} is required`;
 
@@ -126,28 +123,33 @@ export default function Step3Employment({ form, setForm, prev, authToken }) {
     setIsSubmitting(true);
 
     try {
-      // Get token from localStorage if not passed as prop
       const token = authToken || localStorage.getItem("access_token");
 
       if (!token) {
         throw new Error("Authentication token not found. Please login again.");
       }
 
-      // Prepare payload according to API requirements
       const payload = {
-        first_name: form.name.split(" ")[0],
-        last_name: form.name.split(" ")[1] || "",
-        pan_number: form.pan,
+        first_name: form.name?.split(" ")[0] || "",
+        last_name: form.name?.split(" ")[1] || "",
+
+        pan_number: form.pan_number,
+
         aadhar_number: form.aadhaar,
-        date_of_birth: form.dob,
+
+        date_of_birth: form.date_of_birth,
+
         address: form.address,
         city: form.city,
         state: form.state,
         pincode: form.pincode,
-        employment_type: form.employmentType
+
+        employment_type: form.employmentType,
+
+        cibil_score: form.cibil_score,
+        loan_amount: form.loan_amount,
       };
 
-      // ✅ FIX 1: Remove extra bracket and fix employment fields
       if (form.employmentType === "salaried") {
         payload.company_name = form.companyName;
         payload.monthly_income = form.monthlyIncome;
@@ -335,13 +337,9 @@ export default function Step3Employment({ form, setForm, prev, authToken }) {
                 </label>
                 <input
                   type="number"
-                  name="cibil_score"
                   value={form.cibil_score || ""}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="Enter CIBIL score"
-                  min="300"
-                  max="900"
+                  readOnly
+                  className="w-full px-4 py-3 bg-gray-100 border rounded-lg"
                 />
               </div>
 

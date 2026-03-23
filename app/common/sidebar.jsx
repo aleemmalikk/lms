@@ -158,6 +158,11 @@ export default function Sidebar({
   const retailerMenu = [
     ...baseMenu,
     ...services,
+    {
+      label: "Cibil Score",
+      path: "/cibil-report",
+      icon: <FaChartLine size={18} />,
+    },
 
     {
       label: "Check Eligibility",
@@ -167,7 +172,7 @@ export default function Sidebar({
 
     {
       label: "My Applications",
-      path: "/my-applications/apply",
+      path: "/my-applications/apply/aplicantlist",
       icon: <FaFileAlt size={18} />,
     },
 
@@ -181,11 +186,11 @@ export default function Sidebar({
     //   path: "/useronboarding",
     //   icon: <FaChartLine size={18} />,
     // },
-    {
-      label: "Profile",
-      path: "/profile",
-      icon: <FaUserCircle size={18} />,
-    },
+    // {
+    //   label: "Profile",
+    //   path: "/profile",
+    //   icon: <FaUserCircle size={18} />,
+    // },
     {
       label: "Credit Reports",
       path: "/credit-report",

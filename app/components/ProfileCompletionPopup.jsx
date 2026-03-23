@@ -15,7 +15,7 @@ export default function ProfileCompletionPopup({
   setProfileData,
   onUpdate,
   onClose,
-  onComplete, // New callback for when profile is completed
+  onComplete, 
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -60,13 +60,11 @@ export default function ProfileCompletionPopup({
     try {
       await onUpdate();
 
-      // Call onComplete callback if provided
       if (onComplete) {
         setTimeout(() => {
           onComplete();
         }, 500);
       } else {
-        // Default redirect to eligibility page
         router.push("/loan-eligibility");
       }
     } catch (error) {
@@ -84,7 +82,6 @@ export default function ProfileCompletionPopup({
         exit={{ opacity: 0, scale: 0.9 }}
         className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
       >
-        {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl z-10">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900">
@@ -98,7 +95,6 @@ export default function ProfileCompletionPopup({
             </button>
           </div>
 
-          {/* Progress Bar */}
           <div className="flex items-center justify-between">
             {steps.map((s, index) => (
               <div
@@ -139,7 +135,6 @@ export default function ProfileCompletionPopup({
           </div>
         </div>
 
-        {/* Form Container */}
         <div className="p-6">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div

@@ -7,7 +7,6 @@ export default function Step2Address({ form, setForm, next, prev }) {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
 
-  // ✅ Fetch States
   const fetchStates = async () => {
     try {
       const res = await fetch(`${BASE_URL}states/`, {
@@ -26,7 +25,6 @@ export default function Step2Address({ form, setForm, next, prev }) {
     }
   };
 
-  // ✅ Fetch Cities (ID use hoga)
   const fetchCities = async (stateId) => {
     try {
       const res = await fetch(`${BASE_URL}cities/?state=${stateId}`, {
@@ -45,12 +43,10 @@ export default function Step2Address({ form, setForm, next, prev }) {
     }
   };
 
-  // Load states once
   useEffect(() => {
     fetchStates();
   }, []);
 
-  // 🔥 FIX: stateId use karo (NOT state name)
   useEffect(() => {
     if (form.stateId) {
       fetchCities(form.stateId);
@@ -60,7 +56,6 @@ export default function Step2Address({ form, setForm, next, prev }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // ✅ STATE SELECT
     if (name === "state") {
       const selectedState = states.find((s) => s.id == value);
 

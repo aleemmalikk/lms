@@ -31,12 +31,10 @@ export default function LoanForm() {
   const [errors, setErrors] = useState({});
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // New state for popup - removed redirectCountdown
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [pendingMobile, setPendingMobile] = useState(null);
 
-  // Token for API calls
   const getToken = () => {
     if (typeof window === "undefined") return null;
     return (
@@ -45,39 +43,6 @@ export default function LoanForm() {
     );
   };
 
-  const handleChange = async (e) => {
-    const { name, value } = e.target;
-    const formattedValue = name === "pan" ? value.toUpperCase() : value;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: formattedValue,
-    }));
-
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-
-    if (name === "pan") {
-      setPanVerified(false);
-
-      if (formattedValue.length === 10) {
-        const panError = validatePAN(formattedValue);
-        if (!panError) {
-          await verifyPAN(formattedValue);
-        } else {
-          setErrors((prev) => ({ ...prev, pan: panError }));
-        }
-      }
-    }
-
-    if (name === "mobile") {
-      const clean = value.replace(/\D/g, "");
-      if (clean.length === 10) {
-        fetchUserProfile(clean);
-      }
-    }
-  };
 
   useEffect(() => {
     if (autoCheck) {
@@ -101,14 +66,12 @@ export default function LoanForm() {
         return;
       }
 
-      // ✅ PROFILE FETCH
       const res = await axios.get(`${BASE_URL}users/my_profile/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const user = res.data;
 
-      // ❌ PROFILE INCOMPLETE
       if (!user.cibil_score || !user.monthly_income || !user.loan_amount) {
         setPopupMessage("Please complete your profile first");
         setPendingMobile(user.phone_number);
@@ -116,7 +79,6 @@ export default function LoanForm() {
         return;
       }
 
-      // ✅ DIRECT ELIGIBILITY CALL
       setLoading(true);
 
       const result = await axios.post(
@@ -299,9 +261,9 @@ export default function LoanForm() {
       console.error("Eligibility check error:", error);
       throw new Error(
         error.response?.data?.message ||
-          error.response?.data?.detail ||
-          error.message ||
-          "Failed to check eligibility",
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to check eligibility",
       );
     }
   };
@@ -374,7 +336,7 @@ export default function LoanForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-300 pt-24 pb-12 px-4">
+    <div className="pt-10 pb-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="bg-gradient-to-r from-[#0f172a] via-[#1e3a8a] to-[#2563eb] rounded-t-2xl p-6">
           <h1 className="text-2xl md:text-3xl font-bold text-white">
@@ -389,13 +351,12 @@ export default function LoanForm() {
           {eligibilityResult && (
             <div className="space-y-6">
               <div
-                className={`p-6 rounded-lg ${
-                  eligibilityResult.status === "approved"
+                className={`p-6 rounded-lg ${eligibilityResult.status === "approved"
                     ? "bg-green-50 border-2 border-green-200"
                     : eligibilityResult.status === "rejected"
                       ? "bg-red-50 border-2 border-red-200"
                       : "bg-yellow-50 border-2 border-yellow-200"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   {eligibilityResult.status === "approved" ? (
@@ -413,13 +374,12 @@ export default function LoanForm() {
                   )}
                   <div>
                     <h2
-                      className={`text-xl font-bold ${
-                        eligibilityResult.status === "approved"
+                      className={`text-xl font-bold ${eligibilityResult.status === "approved"
                           ? "text-green-800"
                           : eligibilityResult.status === "rejected"
                             ? "text-red-800"
                             : "text-yellow-800"
-                      }`}
+                        }`}
                     >
                       {eligibilityResult.status === "approved"
                         ? "You're Eligible!"
@@ -428,13 +388,12 @@ export default function LoanForm() {
                           : "Error"}
                     </h2>
                     <p
-                      className={`text-sm ${
-                        eligibilityResult.status === "approved"
+                      className={`text-sm ${eligibilityResult.status === "approved"
                           ? "text-green-700"
                           : eligibilityResult.status === "rejected"
                             ? "text-red-700"
                             : "text-yellow-700"
-                      }`}
+                        }`}
                     >
                       {eligibilityResult.message}
                     </p>
@@ -695,7 +654,6 @@ export default function LoanForm() {
         </p>
       </div>
 
-      {/* Popup Modal - Updated with no auto-redirect */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full animate-fade-in">

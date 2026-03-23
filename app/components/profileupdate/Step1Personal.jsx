@@ -21,6 +21,33 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
     return localStorage.getItem("access_token");
   };
 
+
+
+  const fetchCibil = async () => {
+    try {
+      const token = getToken();
+
+      const res = await axios.post(
+        `${BASE_URL}kyc/check_cibil/`,
+        { pan_number: form.pan_number },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setForm((prev) => ({
+        ...prev,
+        cibil_score: res.data.cibil_score
+      }));
+      
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const verifyPAN = async (pan) => {
     try {
       setLoadingPAN(true);
@@ -49,6 +76,7 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
         }));
         setErrors((prev) => ({ ...prev, pan: "" }));
         setPanVerified(true);
+        await fetchCibil();
       } else {
         setErrors((prev) => ({ ...prev, pan: "Invalid PAN or name not found" }));
       }
@@ -63,6 +91,7 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
       setLoadingPAN(false);
     }
   };
+
 
 
   useEffect(() => {
@@ -90,21 +119,21 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
     const { name, value } = e.target;
     const formattedValue = name === "pan" ? value.toUpperCase() : value;
 
-    setForm({
-      ...form,
-      [name === "pan" ? "pan_number" : name]: formattedValue
-    });
+    if (name === "pan") {
+      setForm((prev) => ({
+        ...prev,
+        pan: formattedValue,
+        pan_number: formattedValue,
+      }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: formattedValue
+      }));
+    }
 
     if (name === "pan") {
       setPanVerified(false);
-
-      const existingPan = form.pan_number || form.pan;
-
-      // ✅ same PAN → skip API
-      if (existingPan === formattedValue && form.name) {
-        setPanVerified(true);
-        return;
-      }
 
       if (formattedValue.length === 10) {
         const error = validatePAN(formattedValue);
@@ -166,7 +195,6 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
           )}
         </div>
 
-        {/* NAME */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Full Name <span className="text-red-500">*</span>
@@ -186,7 +214,6 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
           </div>
         </div>
 
-        {/* DOB */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Date of Birth <span className="text-red-500">*</span>
@@ -213,7 +240,6 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
           )}
         </div>
 
-        {/* Buttons */}
         <div className="flex gap-3 pt-4">
           <button
             onClick={prev}
@@ -226,8 +252,8 @@ export default function Step1Personal({ form, setForm, next, prev, isPopup = fal
             onClick={next}
             disabled={!panVerified || !dob}
             className={`flex-1 py-3 rounded-lg text-white font-medium transition-all ${panVerified && dob
-                ? "bg-indigo-600 hover:bg-indigo-700"
-                : "bg-gray-400 cursor-not-allowed"
+              ? "bg-indigo-600 hover:bg-indigo-700"
+              : "bg-gray-400 cursor-not-allowed"
               }`}
           >
             Continue
