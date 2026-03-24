@@ -482,7 +482,7 @@ export default function UsersOnboardingPage() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative p-10">
       {showDeletePopup && userToDelete && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <motion.div

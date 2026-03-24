@@ -178,7 +178,7 @@ export default function Sidebar({
 
     {
       label: "My Loans",
-      path: "/loans",
+      path: "/my-loans",
       icon: <FaMoneyBillWave size={18} />,
     },
     //  {
