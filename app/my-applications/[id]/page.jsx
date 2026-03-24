@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getWithAuth, postWithAuth } from "../../lib/api";
+import { getWithAuth, postWithAuth, getUserRole } from "../../lib/api";
 import {
   User,
   Mail,
@@ -15,11 +15,9 @@ import {
   MapPin,
   Home,
   Briefcase,
-  TrendingUp,
   CheckCircle,
   XCircle,
   Clock,
-  ArrowLeft,
   Download,
   FileText,
   Eye,
@@ -35,84 +33,17 @@ import {
   MessageSquare,
   Send,
   Copy,
-  Sparkles,
   Bell,
-  ChevronRight,
-  ChevronDown,
   Upload,
-  Share2,
-  Bookmark,
   Info,
   Check,
   X,
-  Plus,
-  Search,
-  Filter,
   Moon,
   Sun,
-  Wallet,
   PieChart,
   BarChart,
   LineChart,
-  Target,
-  Coffee,
-  Image,
-  Database,
-  Monitor,
   Headphones,
-  Wifi,
-  Leaf,
-  Cloud,
-  Wind,
-  Droplet,
-  Flame,
-  Pill,
-  Syringe,
-  Stethoscope,
-  Bone,
-  Brain,
-  Baby,
-  Adult,
-  Wheelchair,
-  Volume2,
-  Mic,
-  Video,
-  Camera,
-  Battery,
-  Power,
-  Repeat,
-  Shuffle,
-  Play,
-  Pause,
-  Stop,
-  Maximize,
-  Minimize,
-  Bitcoin,
-  Coins,
-  PiggyBank,
-  ShieldCheck,
-  ShieldAlert,
-  Wrench,
-  Ruler,
-  Square,
-  Circle,
-  Triangle,
-  Sparkle,
-  Wave,
-  Mountain,
-  River,
-  Ocean,
-  Forest,
-  Fire,
-  Ghost,
-  Bird,
-  Cat,
-  Dog,
-  Fish,
-  Music,
-  Speaker,
-  Guitar,
-  Piano
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -128,6 +59,12 @@ export default function ApplicationDetail() {
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [showDocPreview, setShowDocPreview] = useState(false);
   const [message, setMessage] = useState("");
+  const [user, setUser] = useState(null);
+  const role = getUserRole()?.toLowerCase();
+  const isAdmin = ["admin", "superadmin"].includes(role || "");
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [approvedAmount, setApprovedAmount] = useState("");
+  const [interestRate, setInterestRate] = useState("");
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -163,8 +100,49 @@ export default function ApplicationDetail() {
     try {
       const res = await getWithAuth(`loan-applications/${id}/`);
       setData(res);
+
+      const me = await getWithAuth("auth/me/");
+      setUser(me);
+
     } catch (error) {
       console.error("Failed to fetch application:", error);
+    }
+  };
+
+
+  const approveLoan = async () => {
+    if (!approvedAmount || !interestRate) {
+      setActionMessage({
+        type: "error",
+        text: "Amount & Interest required"
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await postWithAuth(`loan-applications/${id}/approve_loan/`, {
+        approved_amount: approvedAmount,
+        interest_rate: interestRate,
+      });
+
+      await fetchData();
+
+      setActionMessage({
+        type: "success",
+        text: "Loan approved successfully!"
+      });
+
+      setShowApproveModal(false);
+
+    } catch (e) {
+      setActionMessage({
+        type: "error",
+        text: "Approval failed"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -187,7 +165,7 @@ export default function ApplicationDetail() {
 
   const sendMessage = () => {
     if (!message.trim()) return;
-    
+
     const newMessage = {
       id: messages.length + 1,
       sender: "You",
@@ -196,10 +174,10 @@ export default function ApplicationDetail() {
       isUser: true,
       read: false
     };
-    
+
     setMessages([...messages, newMessage]);
     setMessage("");
-    
+
     // Simulate reply after 2 seconds
     setTimeout(() => {
       const reply = {
@@ -216,7 +194,7 @@ export default function ApplicationDetail() {
 
   if (!data) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center"
@@ -234,46 +212,46 @@ export default function ApplicationDetail() {
   }
 
   const statusColors = {
-    approved: { 
-      bg: "bg-emerald-100", 
-      text: "text-emerald-700", 
-      border: "border-emerald-200", 
-      icon: CheckCircle, 
+    approved: {
+      bg: "bg-emerald-100",
+      text: "text-emerald-700",
+      border: "border-emerald-200",
+      icon: CheckCircle,
       label: "Approved"
     },
-    rejected: { 
-      bg: "bg-rose-100", 
-      text: "text-rose-700", 
-      border: "border-rose-200", 
-      icon: XCircle, 
+    rejected: {
+      bg: "bg-rose-100",
+      text: "text-rose-700",
+      border: "border-rose-200",
+      icon: XCircle,
       label: "Rejected"
     },
-    risk_review: { 
-      bg: "bg-amber-100", 
-      text: "text-amber-700", 
-      border: "border-amber-200", 
-      icon: AlertTriangle, 
+    risk_review: {
+      bg: "bg-amber-100",
+      text: "text-amber-700",
+      border: "border-amber-200",
+      icon: AlertTriangle,
       label: "Risk Review"
     },
-    disbursed: { 
-      bg: "bg-purple-100", 
-      text: "text-purple-700", 
-      border: "border-purple-200", 
-      icon: Banknote, 
+    disbursed: {
+      bg: "bg-purple-100",
+      text: "text-purple-700",
+      border: "border-purple-200",
+      icon: Banknote,
       label: "Disbursed"
     },
-    lead: { 
-      bg: "bg-gray-100", 
-      text: "text-gray-700", 
-      border: "border-gray-200", 
-      icon: Clock, 
+    lead: {
+      bg: "bg-gray-100",
+      text: "text-gray-700",
+      border: "border-gray-200",
+      icon: Clock,
       label: "Lead"
     },
-    pending: { 
-      bg: "bg-blue-100", 
-      text: "text-blue-700", 
-      border: "border-blue-200", 
-      icon: Clock, 
+    pending: {
+      bg: "bg-blue-100",
+      text: "text-blue-700",
+      border: "border-blue-200",
+      icon: Clock,
       label: "Pending"
     }
   };
@@ -290,13 +268,13 @@ export default function ApplicationDetail() {
   ];
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="min-h-screen bg-gradient-to-br from-gray-50 to-white"
     >
       {/* Header */}
-      <motion.div 
+      <motion.div
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 100 }}
@@ -307,7 +285,7 @@ export default function ApplicationDetail() {
             <div className="flex items-center gap-4">
               <div>
                 <div className="flex items-center gap-3">
-                  <motion.h1 
+                  <motion.h1
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="text-2xl font-bold text-gray-900"
@@ -389,11 +367,10 @@ export default function ApplicationDetail() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 300 }}
             transition={{ type: "spring", damping: 20 }}
-            className={`fixed top-24 right-4 z-50 px-6 py-4 rounded-xl shadow-lg border flex items-center gap-3 ${
-              actionMessage.type === "success" ? "bg-emerald-50 border-emerald-200 text-emerald-700" :
+            className={`fixed top-24 right-4 z-50 px-6 py-4 rounded-xl shadow-lg border flex items-center gap-3 ${actionMessage.type === "success" ? "bg-emerald-50 border-emerald-200 text-emerald-700" :
               actionMessage.type === "error" ? "bg-rose-50 border-rose-200 text-rose-700" :
-              "bg-blue-50 border-blue-200 text-blue-700"
-            }`}
+                "bg-blue-50 border-blue-200 text-blue-700"
+              }`}
           >
             {actionMessage.type === "success" && <CheckCircle size={20} />}
             {actionMessage.type === "error" && <AlertCircle size={20} />}
@@ -405,7 +382,7 @@ export default function ApplicationDetail() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}
-        <motion.div 
+        <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1 }}
@@ -429,11 +406,10 @@ export default function ApplicationDetail() {
                 <div className={`w-12 h-12 ${stat.iconBg} rounded-xl flex items-center justify-center`}>
                   <stat.icon size={24} className={stat.text} />
                 </div>
-                <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                  stat.label === "Risk Score" 
-                    ? data.risk_score > 50 ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"
-                    : "bg-gray-100 text-gray-600"
-                }`}>
+                <span className={`text-xs font-medium px-2 py-1 rounded-full ${stat.label === "Risk Score"
+                  ? data.risk_score > 50 ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"
+                  : "bg-gray-100 text-gray-600"
+                  }`}>
                   {stat.label === "Risk Score" ? (data.risk_score > 50 ? "High" : "Low") : "Active"}
                 </span>
               </div>
@@ -443,8 +419,7 @@ export default function ApplicationDetail() {
           ))}
         </motion.div>
 
-        {/* Tabs */}
-        <motion.div 
+        <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -458,11 +433,10 @@ export default function ApplicationDetail() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 + index * 0.05 }}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative px-6 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                  activeTab === tab.id
-                    ? 'text-white'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`relative px-6 py-2.5 text-sm font-medium rounded-lg transition-all ${activeTab === tab.id
+                  ? 'text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -481,12 +455,13 @@ export default function ApplicationDetail() {
               </motion.button>
             ))}
           </div>
+
         </motion.div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={`grid grid-cols-1 ${isAdmin ? "lg:grid-cols-3" : "lg:grid-cols-1"} gap-6`}>
           {/* Main Content */}
-          <motion.div 
+          <motion.div
             layout
             className="lg:col-span-2 space-y-6"
           >
@@ -729,9 +704,8 @@ export default function ApplicationDetail() {
                             }}
                           >
                             <div className="flex items-start gap-3">
-                              <div className={`w-10 h-10 rounded-lg ${
-                                doc.status === "verified" ? "bg-emerald-100" : "bg-amber-100"
-                              } flex items-center justify-center`}>
+                              <div className={`w-10 h-10 rounded-lg ${doc.status === "verified" ? "bg-emerald-100" : "bg-amber-100"
+                                } flex items-center justify-center`}>
                                 <Icon size={20} className={doc.status === "verified" ? "text-emerald-600" : "text-amber-600"} />
                               </div>
                               <div className="flex-1 min-w-0">
@@ -742,9 +716,8 @@ export default function ApplicationDetail() {
                                   <span>{doc.size}</span>
                                 </div>
                                 <div className="flex items-center gap-2 mt-2">
-                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                                    doc.status === "verified" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-                                  }`}>
+                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${doc.status === "verified" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                                    }`}>
                                     {doc.status === "verified" ? <Check size={10} /> : <Clock size={10} />}
                                     {doc.status}
                                   </span>
@@ -792,33 +765,33 @@ export default function ApplicationDetail() {
                     <div className="relative">
                       {/* Timeline Line */}
                       <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
-                      
+
                       {[
-                        { 
-                          action: "Application Submitted", 
-                          date: "2024-01-15 10:30 AM", 
-                          status: "completed", 
+                        {
+                          action: "Application Submitted",
+                          date: "2024-01-15 10:30 AM",
+                          status: "completed",
                           description: "Application received and logged in system",
                           icon: FileText
                         },
-                        { 
-                          action: "KYC Verification", 
-                          date: "2024-01-15 11:45 AM", 
-                          status: "completed", 
+                        {
+                          action: "KYC Verification",
+                          date: "2024-01-15 11:45 AM",
+                          status: "completed",
                           description: "Documents verified successfully",
                           icon: Fingerprint
                         },
-                        { 
-                          action: "Bank Statement Analysis", 
-                          date: "2024-01-16 09:20 AM", 
-                          status: "in-progress", 
+                        {
+                          action: "Bank Statement Analysis",
+                          date: "2024-01-16 09:20 AM",
+                          status: "in-progress",
                           description: "Analyzing last 6 months transactions",
                           icon: FileCheck
                         },
-                        { 
-                          action: "Risk Assessment", 
-                          date: "Pending", 
-                          status: "pending", 
+                        {
+                          action: "Risk Assessment",
+                          date: "Pending",
+                          status: "pending",
                           description: "Calculating risk score and fraud detection",
                           icon: Shield
                         },
@@ -832,25 +805,23 @@ export default function ApplicationDetail() {
                             transition={{ delay: i * 0.1 }}
                             className="relative flex items-start gap-4 mb-6 last:mb-0"
                           >
-                            <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center ${
-                              item.status === "completed" ? "bg-emerald-100" :
+                            <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center ${item.status === "completed" ? "bg-emerald-100" :
                               item.status === "in-progress" ? "bg-blue-100" :
-                              "bg-gray-100"
-                            }`}>
+                                "bg-gray-100"
+                              }`}>
                               <Icon size={14} className={
                                 item.status === "completed" ? "text-emerald-600" :
-                                item.status === "in-progress" ? "text-blue-600" :
-                                "text-gray-400"
+                                  item.status === "in-progress" ? "text-blue-600" :
+                                    "text-gray-400"
                               } />
                             </div>
                             <div className="flex-1 bg-gray-50 rounded-lg p-3">
                               <div className="flex items-center justify-between mb-1">
                                 <h3 className="text-sm font-semibold text-gray-900">{item.action}</h3>
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                  item.status === "completed" ? "bg-emerald-100 text-emerald-700" :
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${item.status === "completed" ? "bg-emerald-100 text-emerald-700" :
                                   item.status === "in-progress" ? "bg-blue-100 text-blue-700" :
-                                  "bg-gray-100 text-gray-600"
-                                }`}>
+                                    "bg-gray-100 text-gray-600"
+                                  }`}>
                                   {item.status}
                                 </span>
                               </div>
@@ -890,11 +861,10 @@ export default function ApplicationDetail() {
                           transition={{ delay: i * 0.1 }}
                           className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
                         >
-                          <div className={`max-w-[80%] rounded-lg p-3 ${
-                            msg.isUser 
-                              ? 'bg-blue-600 text-white' 
-                              : 'bg-gray-100 text-gray-900'
-                          }`}>
+                          <div className={`max-w-[80%] rounded-lg p-3 ${msg.isUser
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-900'
+                            }`}>
                             <p className="text-sm">{msg.message}</p>
                             <p className={`text-xs mt-1 ${msg.isUser ? 'text-blue-100' : 'text-gray-500'}`}>
                               {msg.time}
@@ -956,7 +926,7 @@ export default function ApplicationDetail() {
                           <p className="text-xs text-gray-500 mb-1">{item.label}</p>
                           <p className="text-lg font-bold text-gray-900">{item.value}</p>
                           <div className="h-1.5 bg-gray-200 rounded-full mt-2 overflow-hidden">
-                            <div 
+                            <div
                               className={`h-full ${item.color} rounded-full`}
                               style={{ width: typeof item.value === 'string' ? item.value : '0%' }}
                             />
@@ -979,108 +949,167 @@ export default function ApplicationDetail() {
           </motion.div>
 
           {/* Sidebar - Actions */}
-          <motion.div 
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="lg:col-span-1"
-          >
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden sticky top-24">
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <Zap size={18} className="text-blue-600" />
-                  Processing Actions
-                </h2>
-              </div>
+          {["admin", "superadmin"].includes(role) && (
+            <motion.div
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="lg:col-span-1"
+            >
+              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden sticky top-24">
+                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                  <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Zap size={18} className="text-blue-600" />
+                    Processing Actions
+                  </h2>
+                </div>
 
-              <div className="p-4 space-y-2">
-                <ActionBtn
-                  icon={<Fingerprint size={16} />}
-                  label="Verify KYC"
-                  onClick={() => callAction("verify_kyc", "KYC Verification")}
-                  loading={loading}
-                  color="bg-blue-600 hover:bg-blue-700"
-                />
-
-                <ActionBtn
-                  icon={<Award size={16} />}
-                  label="Fetch CIBIL"
-                  onClick={() => callAction("fetch_bureau", "CIBIL Fetch")}
-                  loading={loading}
-                  color="bg-purple-600 hover:bg-purple-700"
-                />
-
-                <ActionBtn
-                  icon={<FileCheck size={16} />}
-                  label="Analyze Bank"
-                  onClick={() => callAction("analyze_bank_statement", "Bank Analysis")}
-                  loading={loading}
-                  color="bg-emerald-600 hover:bg-emerald-700"
-                />
-
-                <ActionBtn
-                  icon={<Shield size={16} />}
-                  label="Detect Fraud"
-                  onClick={() => callAction("detect_fraud", "Fraud Detection")}
-                  loading={loading}
-                  color="bg-amber-600 hover:bg-amber-700"
-                />
-
-                <ActionBtn
-                  icon={<Activity size={16} />}
-                  label="Calculate Risk"
-                  onClick={() => callAction("calculate_risk_score", "Risk Calculation")}
-                  loading={loading}
-                  color="bg-rose-600 hover:bg-rose-700"
-                />
-
-                <div className="border-t border-gray-200 my-4 pt-4">
+                <div className="p-4 space-y-2">
                   <ActionBtn
-                    icon={<CheckCircle size={16} />}
-                    label="Approve Loan"
-                    onClick={() => callAction("approve_loan", "Loan Approval")}
+                    icon={<Fingerprint size={16} />}
+                    label="Verify KYC"
+                    onClick={() => callAction("verify_kyc", "KYC Verification")}
                     loading={loading}
-                    color="bg-green-600 hover:bg-green-700"
-                    fullWidth
+                    color="bg-blue-600 hover:bg-blue-700"
                   />
 
                   <ActionBtn
-                    icon={<Banknote size={16} />}
-                    label="Disburse Loan"
-                    onClick={() => callAction("disburse", "Disbursement")}
+                    icon={<Award size={16} />}
+                    label="Fetch CIBIL"
+                    onClick={() => callAction("fetch_bureau", "CIBIL Fetch")}
                     loading={loading}
-                    color="bg-indigo-600 hover:bg-indigo-700"
-                    fullWidth
-                    className="mt-2"
+                    color="bg-purple-600 hover:bg-purple-700"
                   />
-                </div>
-              </div>
 
-              {/* Quick Info */}
-              <div className="p-4 bg-gray-50 border-t border-gray-200">
-                <h3 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-1">
-                  <Info size={14} className="text-blue-600" />
-                  Quick Info
-                </h3>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Application Date</span>
-                    <span className="font-medium text-gray-900">2024-01-15</span>
+                  <ActionBtn
+                    icon={<FileCheck size={16} />}
+                    label="Analyze Bank"
+                    onClick={() => callAction("analyze_bank_statement", "Bank Analysis")}
+                    loading={loading}
+                    color="bg-emerald-600 hover:bg-emerald-700"
+                  />
+
+                  <ActionBtn
+                    icon={<Shield size={16} />}
+                    label="Detect Fraud"
+                    onClick={() => callAction("detect_fraud", "Fraud Detection")}
+                    loading={loading}
+                    color="bg-amber-600 hover:bg-amber-700"
+                  />
+
+                  <ActionBtn
+                    icon={<Activity size={16} />}
+                    label="Calculate Risk"
+                    onClick={() => callAction("calculate_risk_score", "Risk Calculation")}
+                    loading={loading}
+                    color="bg-rose-600 hover:bg-rose-700"
+                  />
+
+                  <div className="border-t border-gray-200 my-4 pt-4">
+                    <ActionBtn
+                      icon={<CheckCircle size={16} />}
+                      label="Approve Loan"
+                      onClick={() => setShowApproveModal(true)}
+                      loading={loading}
+                      color="bg-green-600 hover:bg-green-700"
+                      fullWidth
+                    />
+
+                    {/* <ActionBtn
+                      icon={<Banknote size={16} />}
+                      label="Disburse Loan"
+                      onClick={() => callAction("disburse", "Disbursement")}
+                      loading={loading}
+                      color="bg-indigo-600 hover:bg-indigo-700"
+                      fullWidth
+                      className="mt-2"
+                    /> */}
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Last Updated</span>
-                    <span className="font-medium text-gray-900">2024-01-16</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Assigned To</span>
-                    <span className="font-medium text-gray-900">John Doe</span>
+                </div>
+
+                {/* Quick Info */}
+                <div className="p-4 bg-gray-50 border-t border-gray-200">
+                  <h3 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-1">
+                    <Info size={14} className="text-blue-600" />
+                    Quick Info
+                  </h3>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Application Date</span>
+                      <span className="font-medium text-gray-900">2024-01-15</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Last Updated</span>
+                      <span className="font-medium text-gray-900">2024-01-16</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Assigned To</span>
+                      <span className="font-medium text-gray-900">John Doe</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
         </div>
       </div>
+
+
+      <AnimatePresence>
+        {showApproveModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowApproveModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-lg font-semibold mb-4">Approve Loan</h2>
+
+              <div className="space-y-3">
+                <input
+                  type="number"
+                  placeholder="Approved Amount"
+                  value={approvedAmount}
+                  onChange={(e) => setApprovedAmount(e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+
+                <input
+                  type="number"
+                  placeholder="Interest Rate (%)"
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  onClick={() => setShowApproveModal(false)}
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={approveLoan}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg"
+                >
+                  Approve
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Document Preview Modal */}
       <AnimatePresence>
@@ -1130,8 +1159,10 @@ export default function ApplicationDetail() {
         )}
       </AnimatePresence>
     </motion.div>
+
   );
 }
+
 
 // Info Card Component
 function InfoCard({ icon, label, value, color = "bg-gray-50", iconBg = "bg-gray-100", fullWidth = false }) {
